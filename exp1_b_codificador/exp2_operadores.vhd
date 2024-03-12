@@ -65,6 +65,7 @@ architecture arch of exp2_operadores_top is
 			 maj_result: bit_vector(31 downto 0);
 
 	signal x,y,z, result: bit_vector(31 downto 0);
+	signal SW_espelhado: bit_vector(7 downto 0);
 	signal option1, option2, option3, option4: bit_vector(31 downto 0);
 	signal op: bit_vector(1 downto 0);
 begin
@@ -72,9 +73,10 @@ begin
 	x <= SW(7 downto 0) & SW(7 downto 0) & SW(7 downto 0) & SW(7 downto 0); 
 	y <= not x;
 	
-	GENERATE_INVERSE_Z: for i in 0 to 31 generate
-		z(i) <= x(31-i);
+	GENERATE_INVERSE_Z: for i in 0 to 7 generate
+		SW_espelhado(i) <= SW(7-i);
 	end generate GENERATE_INVERSE_Z;
+	z <= SW_espelhado(7 downto 0) & SW_espelhado(7 downto 0) & SW_espelhado(7 downto 0) & SW_espelhado(7 downto 0); 
 	
 	SUM0_INSTANCE:   sum0   port map(x, sum0_result);
 	SUM1_INSTANCE:   sum1   port map(x, sum1_result);
@@ -84,16 +86,17 @@ begin
 	MAJ_INSTANCE:    maj    port map(x,y,z, maj_result);
 
 
-	option1 <= (others => '0') & SW;
-	option2 <= sum0_result   when KEY(3) = '1' else sum1_result;
-	option3 <= sigma0_result when KEY(3) = '1' else sigma1_result;
-	option4 <= ch_result     when KEY(3) = '1' else maj_result;
+	option1(31 downto 10) <= (others => '0');
+	option1(9 downto 0) <= SW;
+	option2 <= sum0_result   when KEY(3) = '0' else sum1_result;
+	option3 <= sigma0_result when KEY(3) = '0' else sigma1_result;
+	option4 <= ch_result     when KEY(3) = '0' else maj_result;
 
 	
 	result <= option1 when op = "00" else
   				 option2 when op = "01" else
   				 option3 when op = "10" else
-  				 option4;
+  				 option4 when op = "11" else (others => '0');
 	
 	HEX0C: hex2seg port map(result(3 downto 0),   HEX0);
 	HEX1C: hex2seg port map(result(7 downto 4),   HEX1);
@@ -103,6 +106,7 @@ begin
 	HEX5C: hex2seg port map(result(23 downto 20), HEX5);
 
 	LEDR <= "00" & result(31 downto 24);
+--	LEDR <= y(31 downto 22);
 	
 --   HEX1C: hex2seg port map(hexs(7 downto 4),HEX1);
 --   HEX2C: hex2seg port map(hexs(11 downto 8),HEX2);

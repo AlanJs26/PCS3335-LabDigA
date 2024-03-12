@@ -1,0 +1,17 @@
+-------------------------------------------------------------------------------
+-- Author: Bruno Albertini (balbertini@usp.br)
+-- Module Name: hex2seg
+-- Description:
+-- VHDL module to convert from hex (4b) to 7-segment
+-------------------------------------------------------------------------------
+entity hex2seg is
+    port ( hex : in  bit_vector(3 downto 0); -- Entrada binaria
+           seg : out bit_vector(6 downto 0)  -- Saída hexadecimal
+           -- A saída corresponde aos segmentos gfedcba nesta ordem. Cobre 
+           -- todos valores possíveis de entrada.
+        );
+end hex2seg;
+
+architecture comportamental of hex2seg is
+begin
+end comportamental;

@@ -29,7 +29,7 @@ segnot <= "0111111" when hex = "0000" else
 			 "1101111" when hex = "1001" else
 			 "1110111" when hex = "1010" else
 			 "1111100" when hex = "1011" else
-			 "1111001" when hex = "1100" else
+			 "0111001" when hex = "1100" else
 			 "1011110" when hex = "1101" else
 			 "1111001" when hex = "1110" else
 			 "1110001" when hex = "1111";

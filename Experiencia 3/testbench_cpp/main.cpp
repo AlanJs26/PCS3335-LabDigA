@@ -38,6 +38,14 @@ unsigned long sum1(unsigned long x) {
   return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25);
 }
 
+unsigned long sigma0(unsigned long x) {
+  return rotr(x, 7) ^ rotr(x, 18) ^ (x >> 3);
+}
+
+unsigned long sigma1(unsigned long x) {
+  return rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10);
+}
+
 void printbinary(unsigned long x, std::string name){
     std::cout << std::left << name << ": " << std::setw(10) << x << std::right << "  binario: " << std::bitset<32>(x) << std::endl;
 }
@@ -85,36 +93,54 @@ void stepfun(
 
 }
 
+void printOperacao(unsigned long x, std::string nome){
+    std::cout << "*" << nome << "*" << "\n\n";
+
+    std::bitset<32> binary(x);
+    std::cout << "binario: " << binary << std::endl;
+    std::cout << "decimal: " << x << std::endl;
+    std::cout << "hexadecimal: " << std::hex << x << "\n\n";
+}
+
 int main()
 {
-    unsigned long x = 0b10000001;
+    unsigned long x = 0b11001100;
     unsigned long y = ~x;
     unsigned long z = reverse(x);
     x = x | (x << 8) | (x << 16) | (x << 24);
 
-    // unsigned long result = maj(x,y,z); 
-    //
-    // std::cout << "x: " << x << std::endl;
-    // std::bitset<32> binary_x(x);
-    // std::cout << "x: " << binary_x << std::endl << std::endl;
-    //
-    // std::bitset<32> binary(result);
-    // std::cout << "binario: " << binary << std::endl;
-    // std::cout << "decimal: " << result << std::endl;
-    // std::cout << "hexadecimal: " << std::hex << result << std::endl;
+    unsigned long sum0Result = sum0(x); 
+    unsigned long sum1Result = sum1(x); 
+    unsigned long sigma0Result = sigma0(x); 
+    unsigned long sigma1Result = sigma1(x); 
+    unsigned long chResult = ch(x,y,z); 
+    unsigned long majResult = maj(x,y,z); 
 
-    stepfun(
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
+    std::cout << "x: " << x << std::endl;
+    std::bitset<32> binary_x(x);
+    std::cout << "x: " << binary_x << std::endl << std::endl;
 
-            12
-           );
+    printOperacao(sum0Result, "sum0");
+    printOperacao(sum1Result, "sum1");
+    printOperacao(sigma0Result, "sigma0");
+    printOperacao(sigma1Result, "sigma1");
+    printOperacao(chResult, "ch");
+    printOperacao(majResult, "maj");
+
+
+
+    // stepfun(
+    //         1,
+    //         2,
+    //         3,
+    //         4,
+    //         5,
+    //         6,
+    //         7,
+    //         8,
+    //
+    //         12
+    //        );
 
     return 0;
 }

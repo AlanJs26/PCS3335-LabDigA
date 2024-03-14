@@ -1,47 +1,57 @@
+-------------------------------------------------------------------------------
+-- Author: Alan Jose dos Santos (alanjose@usp.br)
+-- Author: Lucas Franco
+-- Module Name: exp3_somador
+-------------------------------------------------------------------------------
+
 entity stepfun is
     port (
-        ai, bi, ci, di, ei, fi, gi, hi : in bit_vector (31 downto 0);
-        kpw : in bit_vector(31 downto 0);
-        ao, bo, co, do, eo, fo, go, ho : out bit_vector(31 downto 0)
+        ai, bi, ci, di, ei, fi, gi, hi: in  bit_vector(30 downto 0);
+        kpw:                            in  bit_vector(30 downto 0);
+        ao, bo, co, do, eo, fo, go, ho: out bit_vector(30 downto 0)
     );
 end stepfun;
-architecture arch of stepfun is
+architecture ARCH_STEPFUN of stepfun is
+
+    ------------- COMPONENTS -------------
 
     component sum0 is
         port (
-            x : in bit_vector(31 downto 0);
-            q : out bit_vector(31 downto 0)
+            x: in  bit_vector(31 downto 0);
+            q: out bit_vector(31 downto 0)
         );
     end component;
     component sum1 is
         port (
-            x : in bit_vector(31 downto 0);
-            q : out bit_vector(31 downto 0)
+            x: in  bit_vector(31 downto 0);
+            q: out bit_vector(31 downto 0)
         );
     end component;
     component ch is
         port (
-            x, y, z : in bit_vector(31 downto 0);
-            q : out bit_vector(31 downto 0)
+            x, y, z: in  bit_vector(31 downto 0);
+            q:       out bit_vector(31 downto 0)
         );
     end component;
     component maj is
         port (
-            x, y, z : in bit_vector(31 downto 0);
-            q : out bit_vector(31 downto 0)
+            x, y, z: in  bit_vector(31 downto 0);
+            q:       out bit_vector(31 downto 0)
         );
     end component;
     component somador is
         port (
-            a, b : in bit_vector(31 downto 0);
-            q : out bit_vector(31 downto 0)
+            a, b: in  bit_vector(31 downto 0);
+            q:    out bit_vector(31 downto 0)
         );
     end component;
 
+    ------------- SIGNALS -------------
+
     signal sum0_result,
-    sum1_result,
-    ch_result,
-    maj_result : bit_vector(31 downto 0);
+           sum1_result,
+           ch_result,
+           maj_result : bit_vector(31 downto 0);
 
     signal somador1_result,
            somador2_result,
@@ -49,7 +59,6 @@ architecture arch of stepfun is
            somador4_result,
            somador5_result,
            somador6_result : bit_vector(31 downto 0);
-
 begin
 
     CH_MAP:   ch   port map(ei, fi, gi, ch_result);
@@ -74,27 +83,23 @@ begin
     go <= fi;
     ho <= gi;
 
-end arch; -- arch
+end ARCH_STEPFUN; -- ARCH_STEPFUN
 
-
-
---- SOMADOR
+------------- SOMADOR -------------
 
 library ieee;
 use ieee.numeric_bit.all;
 
 entity somador is
     port (
-        a, b : in bit_vector(31 downto 0);
-        q : out bit_vector(31 downto 0)
+        a, b: in  bit_vector(31 downto 0);
+        q:    out bit_vector(31 downto 0)
     );
 end somador;
-architecture arch of somador is
-
+architecture ARCH_SOMADOR of somador is
     signal soma : unsigned(31 downto 0);
-
 begin
     soma <= unsigned(a) + unsigned(b);
 
     q <= bit_vector(soma);
-end arch; -- arch
+end ARCH_SOMADOR; -- ARCH_SOMADOR

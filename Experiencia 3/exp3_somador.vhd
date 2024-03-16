@@ -159,19 +159,14 @@ begin
         ao_result, bo_result, co_result, do_result, fo_result, go_result, ho_result
     );
     
-    option1 <= ao_result when KEY(3) = '0' else
-        bo_result;
-    option2 <= co_result when KEY(3) = '0' else
-        do_result;
-    option3 <= eo_result when KEY(3) = '0' else
-        fo_result;
-    option4 <= go_result when KEY(3) = '0' else
-        ho_result;
+    option1 <= ao_result when KEY(3) = '0' else bo_result;
+    option2 <= co_result when KEY(3) = '0' else do_result;
+    option3 <= eo_result when KEY(3) = '0' else fo_result;
+    option4 <= go_result when KEY(3) = '0' else ho_result;
     result <= option1 when op = "00" else
-        option2 when op = "01" else
-        option3 when op = "10" else
-        option4 when op = "11" else
-        (others => '0');
+              option2 when op = "01" else
+              option3 when op = "10" else
+              option4 when op = "11" else (others => '0');
 
     HEX0C : hex2seg port map(result(3 downto 0), HEX0);
     HEX1C : hex2seg port map(result(7 downto 4), HEX1);

@@ -7,8 +7,9 @@
 #include <iostream>
 #include <bitset>
 #include <iomanip>
+#include <stdint.h>
 
-unsigned long reverse(unsigned long x)
+int32_t reverse(int32_t x)
 {
     x = ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1); // Swap _<>_
     x = ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2); // Swap __<>__
@@ -18,58 +19,58 @@ unsigned long reverse(unsigned long x)
     return x;
 }
 
-unsigned long rotr(unsigned long x, int n){
+int32_t rotr(int32_t x, int n){
     return (x >> n) | (x << (32 - n));
 }
 
-unsigned long ch(unsigned long x,unsigned long y,unsigned long z) {
+int32_t ch(int32_t x,int32_t y,int32_t z) {
   return (x & y) ^ (~x & z);
 }
 
-unsigned long maj(unsigned long x,unsigned long y,unsigned long z) {
+int32_t maj(int32_t x,int32_t y,int32_t z) {
   return (x & y) ^ (x & z) ^ (y & z);
 }
 
-unsigned long sum0(unsigned long x) {
+int32_t sum0(int32_t x) {
   return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22);
 }
 
-unsigned long sum1(unsigned long x) {
+int32_t sum1(int32_t x) {
   return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25);
 }
 
-unsigned long sigma0(unsigned long x) {
+int32_t sigma0(int32_t x) {
   return rotr(x, 7) ^ rotr(x, 18) ^ (x >> 3);
 }
 
-unsigned long sigma1(unsigned long x) {
+int32_t sigma1(int32_t x) {
   return rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10);
 }
 
-void printbinary(unsigned long x, std::string name){
-    std::cout << std::left << name << ": " << std::setw(10) << x << std::right << "  binario: " << std::bitset<32>(x) << std::endl;
+void printbinary(int32_t x, std::string name){
+    std::cout << std::dec << std::left << name << ": " << std::setw(20) << x << std::right << "  binario: " << std::bitset<32>(x) << "  hexadecimal: " << std::hex << x << std::endl;
 }
 
 void stepfun(
-    unsigned long ai,
-    unsigned long bi,
-    unsigned long ci,
-    unsigned long di,
-    unsigned long ei,
-    unsigned long fi,
-    unsigned long gi,
-    unsigned long hi,
-    unsigned long kpw
+    int32_t ai,
+    int32_t bi,
+    int32_t ci,
+    int32_t di,
+    int32_t ei,
+    int32_t fi,
+    int32_t gi,
+    int32_t hi,
+    int32_t kpw
     ){
 
-    unsigned long a0 = hi + sum1(ei) + ch(ei,fi,gi) + kpw + sum0(ai) + maj(ai,bi,ci);
-    unsigned long b0 = ai;
-    unsigned long c0 = bi;
-    unsigned long d0 = ci;
-    unsigned long e0 = di + hi + sum1(ei) + ch(ei,fi,gi) + kpw;
-    unsigned long f0 = ei;
-    unsigned long g0 = fi;
-    unsigned long h0 = gi;
+    int32_t a0 = hi + sum1(ei) + ch(ei,fi,gi) + kpw + sum0(ai) + maj(ai,bi,ci);
+    int32_t b0 = ai;
+    int32_t c0 = bi;
+    int32_t d0 = ci;
+    int32_t e0 = di + hi + sum1(ei) + ch(ei,fi,gi) + kpw;
+    int32_t f0 = ei;
+    int32_t g0 = fi;
+    int32_t h0 = gi;
 
     printbinary(ai, "ai");
     printbinary(bi, "bi");
@@ -93,7 +94,7 @@ void stepfun(
 
 }
 
-void printOperacao(unsigned long x, std::string nome){
+void printOperacao(int32_t x, std::string nome){
     std::cout << "*" << nome << "*" << "\n\n";
 
     std::bitset<32> binary(x);
@@ -104,43 +105,51 @@ void printOperacao(unsigned long x, std::string nome){
 
 int main()
 {
-    unsigned long x = 0b11001100;
-    unsigned long y = ~x;
-    unsigned long z = reverse(x);
+    int32_t x = 0b10101010;
     x = x | (x << 8) | (x << 16) | (x << 24);
+    int32_t y = ~x;
+    int32_t z = reverse(x);
 
-    unsigned long sum0Result = sum0(x); 
-    unsigned long sum1Result = sum1(x); 
-    unsigned long sigma0Result = sigma0(x); 
-    unsigned long sigma1Result = sigma1(x); 
-    unsigned long chResult = ch(x,y,z); 
-    unsigned long majResult = maj(x,y,z); 
+    int32_t sum0Result = sum0(x); 
+    int32_t sum1Result = sum1(x); 
+    int32_t sigma0Result = sigma0(x); 
+    int32_t sigma1Result = sigma1(x); 
+    int32_t chResult = ch(x,y,z); 
+    int32_t majResult = maj(x,y,z); 
 
     std::cout << "x: " << x << std::endl;
     std::bitset<32> binary_x(x);
     std::cout << "x: " << binary_x << std::endl << std::endl;
 
-    printOperacao(sum0Result, "sum0");
-    printOperacao(sum1Result, "sum1");
-    printOperacao(sigma0Result, "sigma0");
-    printOperacao(sigma1Result, "sigma1");
-    printOperacao(chResult, "ch");
-    printOperacao(majResult, "maj");
+    std::cout << "y: " << y << std::endl;
+    std::bitset<32> binary_y(y);
+    std::cout << "y: " << binary_y << std::endl << std::endl;
+
+    std::cout << "z: " << z << std::endl;
+    std::bitset<32> binary_z(z);
+    std::cout << "z: " << binary_z << std::endl << std::endl;
+
+    // printOperacao(sum0Result, "sum0");
+    // printOperacao(sum1Result, "sum1");
+    // printOperacao(sigma0Result, "sigma0");
+    // printOperacao(sigma1Result, "sigma1");
+    // printOperacao(chResult, "ch");
+    // printOperacao(majResult, "maj");
 
 
 
-    // stepfun(
-    //         1,
-    //         2,
-    //         3,
-    //         4,
-    //         5,
-    //         6,
-    //         7,
-    //         8,
-    //
-    //         12
-    //        );
+    stepfun(
+            x,
+            y,
+            z,
+            x,
+            y,
+            z,
+            x,
+            y,
+    
+            y
+           );
 
     return 0;
 }

@@ -104,6 +104,7 @@ end ARCH_SOMADOR; -- ARCH_SOMADOR
 entity exp3_somador_top is
     port (
         SW : in bit_vector(9 downto 0);
+		  KEY : in bit_vector(3 downto 0);
         LEDR : out bit_vector(9 downto 0);
         HEX0 : out bit_vector(6 downto 0);
         HEX1 : out bit_vector(6 downto 0);
@@ -125,9 +126,9 @@ architecture arch of exp3_somador_top is
     end component;
     component stepfun is
         port (
-            ai, bi, ci, di, ei, fi, gi, hi : in bit_vector(30 downto 0);
-            kpw : in bit_vector(30 downto 0);
-            ao, bo, co, do, eo, fo, go, ho : out bit_vector(30 downto 0)
+            ai, bi, ci, di, ei, fi, gi, hi : in bit_vector(31 downto 0);
+            kpw : in bit_vector(31 downto 0);
+            ao, bo, co, do, eo, fo, go, ho : out bit_vector(31 downto 0)
         );
     end component;
 
@@ -135,6 +136,7 @@ architecture arch of exp3_somador_top is
     bo_result,
     co_result,
     do_result,
+	 eo_result,
     fo_result,
     go_result,
     ho_result : bit_vector(31 downto 0);
@@ -154,9 +156,9 @@ begin
     z <= SW_espelhado(7 downto 0) & SW_espelhado(7 downto 0) & SW_espelhado(7 downto 0) & SW_espelhado(7 downto 0);
 
     STEPFUN_INSTANCE : stepfun port map(
-        x, y, z, x, y, z, x, y,
-        y,
-        ao_result, bo_result, co_result, do_result, fo_result, go_result, ho_result
+        x, x, x, x, x, x, x, x,
+        x,
+        ao_result, bo_result, co_result, do_result, eo_result, fo_result, go_result, ho_result
     );
     
     option1 <= ao_result when KEY(3) = '0' else bo_result;

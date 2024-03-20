@@ -127,9 +127,9 @@ architecture arch of exp3_somador_top is
     end component;
     component stepfun is
         port (
-            ai, bi, ci, di, ei, fi, gi, hi : in bit_vector(30 downto 0);
-            kpw : in bit_vector(30 downto 0);
-            ao, bo, co, do, eo, fo, go, ho : out bit_vector(30 downto 0)
+            ai, bi, ci, di, ei, fi, gi, hi : in bit_vector(31 downto 0);
+            kpw : in bit_vector(31 downto 0);
+            ao, bo, co, do, eo, fo, go, ho : out bit_vector(31 downto 0)
         );
     end component;
 

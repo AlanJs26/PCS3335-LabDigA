@@ -49,14 +49,14 @@ begin
 
         constant tests : tests_array :=
         (
-            ('1', "10101010", x"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", '0', "I01"),
-            ('0', "10101010", x"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", '0', "I02"),
+            ('1', "00000001", x"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", '0', "I01"),
+            ('0', "00000000", x"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", '0', "I02"),
     
             ('0', "00000000", x"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", '0', "S01"),
     
             ('0', "00000000", x"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", '0', "R01"),
 
-            ('0', "11001000", x"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", '0', "F01")
+            ('0', "00000000", x"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", '0', "F01")
         );
     begin
 
@@ -66,9 +66,11 @@ begin
         for k in tests' range loop
             rst <= tests(k).rst;
             
-            for i in 0 to 63 loop
-                msgi((i+1)*7+i downto i*7+i) <= tests(k).SW;
-            end loop;
+            msgi(511 downto 8) <= (others => '0');
+            msgi(7 downto 0) <= tests(K).SW;
+            -- for i in 0 to 63 loop
+            --     msgi((i+1)*7+i downto i*7+i) <= tests(k).SW;
+            -- end loop;
 
             wait until falling_edge(clk);
             wait for clockPeriod/4;

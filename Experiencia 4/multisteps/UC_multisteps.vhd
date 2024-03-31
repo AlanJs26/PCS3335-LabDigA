@@ -7,15 +7,15 @@ entity multisteps_UC is
     port (
         sigma1_input, sigma0_input : out bit_vector(31 downto 0);
         sequential_in_W : out bit_vector(31 downto 0);
-        q_W : out W_array(15 downto 0);
+        q_W : in W_array(63 downto 0);
         KPW_in : out bit_vector(31 downto 0);
         stepfun_input : out stepfun_array_type(7 downto 0);
         done : out bit;
+        enable_counter : out bit;
         enable_W, enable_parallel_W : out bit;
         enable_KPW : out bit;
         enable_stepfun_output : out bit;
         sigma0_output, sigma1_output : in bit_vector(31 downto 0);
-        KPW_output : in bit_vector(31 downto 0);
         stepfun_output_out : in stepfun_array_type(7 downto 0);
         rst, clk : in bit;
         counter : in integer;
@@ -51,8 +51,12 @@ architecture arch of multisteps_UC is
     (
     x"6a09e667", x"bb67ae85", x"3c6ef372", x"a54ff53a", x"510e527f", x"9b05688c", x"1f83d9ab", x"5be0cd19"
     );
+    
+    constant t : integer := 16;
 
-    type state_t is (inicio, calcula_W, calcula_KPW, fim);
+    signal q_W_atual, q_W_0 : bit_vector(31 downto 0);
+
+    type state_t is (inicio, calcula_W, calcula_KPW, calcula_stepfun, fim);
     signal next_state, current_state: state_t;  
 begin        
 
@@ -64,32 +68,41 @@ begin
         current_state <= next_state;
       end if;
     end process;
+    
+    
   
     -- Logica de proximo estado
     next_state <=
-      calcula_W when current_state=inicio or current_state=fim else
+      calcula_W when current_state=inicio or current_state=calcula_stepfun else
       calcula_KPW when current_state=calcula_W else
-      fim   when current_state=calcula_KPW or done='1' else
+      calcula_stepfun   when current_state=calcula_KPW and counter<=62 else
       fim;
   
-    -- Decodifica o estado para gerar sinais de controle
-    -- load_W_inicial  <= '1' when current_state=somando else '0';
-    enable_W <= '1' when current_state=inicio and current_state=calcula_W else '0';
-    enable_parallel_W <= '1' when current_state=inicio and not (current_state=calcula_W) else '0';
+
+    enable_W <= '1' when (current_state=inicio or current_state=calcula_W) and (counter<=0 or counter>=16) else '0';
+    enable_parallel_W <= '1' when (current_state=inicio or current_state=calcula_W) and counter <= 0 else '0';
     GENERATE_STEPFUN_INPUT : for i in 0 to 7 generate
-        stepfun_input(i) <= H(i) when current_state=inicio else stepfun_output_out(i);
+        stepfun_input(i) <= stepfun_output_out(i);
     end generate GENERATE_STEPFUN_INPUT;
 
     sigma1_input <= q_W(counter-2)  when counter>=16 else (others=>'0');
     sigma0_input <= q_W(counter-15) when counter>=16 else (others=>'0');
-    sequential_in_W <= bit_vector(unsigned(sigma1_output) + unsigned(q_W(counter-7)) + unsigned(sigma0_output) + unsigned(q_W(counter-16)));
+    sequential_in_W <= bit_vector(unsigned(sigma1_output) + unsigned(q_W(counter-7)) + unsigned(sigma0_output) + unsigned(q_W(counter-16))) when counter>=16 else 
+                       (others=>'0');
 
     enable_KPW <= '1' when current_state=calcula_W else '0';
-    KPW_in <= bit_vector(unsigned(q_W(counter)) + unsigned(K(counter)));
+    KPW_in <= bit_vector(unsigned(q_W(counter)) + unsigned(K(counter))) when counter>=0 and counter<=63 else 
+              (others=>'0');
+    
+    q_W_atual <= q_W(counter) when counter>=0 and counter <= 15 else
+    			 q_W(15)      when counter>=0 else
+              	 (others=>'0');
+    q_W_0 <= q_W(t-2) when counter>=16 else (others=>'0');
 
-    enable_stepfun_output <= '1' when current_state=fim else '0';
+    enable_stepfun_output <= '1' when current_state=calcula_stepfun or (current_state=fim and counter<=63) else '0';
+    enable_counter <= '1' when current_state=calcula_stepfun or current_state=fim else '0';
 
-    done <= '1' when counter >= 64 else '0';
+    done <= '1' when current_state=fim else '0';
     
     GENERATE_HASO : for i in 0 to 7 generate
       haso((i+1)*31+i downto i*31+i) <= bit_vector(unsigned(stepfun_output_out(i)) + unsigned(H(i)));

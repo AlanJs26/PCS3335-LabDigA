@@ -1,12 +1,5 @@
--------------------------------------------------------------------------------
--- Author: Alan Jose dos Santos (alanjose@usp.br)
--- Author: Lucas Franco
--- Module Name: exp4_multisteps
--------------------------------------------------------------------------------
------ MULTISTEPS
-
 package pkg is
-    type W_array is array (NATURAL range <>) of bit_vector(31 downto 0);
+    -- type W_array is array (NATURAL range <>) of bit_vector(31 downto 0);
     type stepfun_array_type is array (NATURAL range <>) of bit_vector(31 downto 0);
 end package;
   
@@ -22,15 +15,14 @@ entity multisteps_FD is
     port (
         msgi : in bit_vector(511 downto 0);
         sigma1_input, sigma0_input : in bit_vector(31 downto 0);
-        sequential_in_W : in bit_vector(31 downto 0);
-        KPW_in : in bit_vector(31 downto 0);
+        -- sequential_in_W : in bit_vector(31 downto 0);
+        KPW : in bit_vector(31 downto 0);
         stepfun_input : in stepfun_array_type(7 downto 0);
         done, rst, clk : in bit;
-        enable_W, enable_parallel_W : in bit;
-        enable_KPW : in bit;
+        -- enable_W, enable_parallel_W : in bit;
         enable_stepfun_output : in bit;
         enable_counter : in bit;
-        q_W : out W_array(63 downto 0);
+        -- q_W : out W_array(63 downto 0);
         sigma0_output, sigma1_output : out bit_vector(31 downto 0);
         stepfun_output_out : out stepfun_array_type(7 downto 0);
         counter : out integer
@@ -68,27 +60,6 @@ architecture arch of multisteps_FD is
         );
     end component;
 
-    component W_register is
-        port (
-            clk : in BIT;
-            rst : in BIT;
-            counter : in INTEGER;
-            enable : in BIT;
-            enable_parallel : in BIT;
-            parallel_in : in bit_vector(511 downto 0);
-            sequential_in : in bit_vector(31 downto 0);
-            q : out W_array(63 downto 0)
-        );
-    end component;
-
-    component reg32 is
-        port (
-            clk, rst, enable : in BIT;
-            D : in bit_vector(31 downto 0);
-            Q : out bit_vector(31 downto 0)
-        );
-    end component;
-
     component stepfun_register is
         port (
             clk   : in bit;
@@ -100,40 +71,21 @@ architecture arch of multisteps_FD is
     end component;
 
 
-    signal parallel_in_W : bit_vector(511 downto 0);
-    signal KPW_output : bit_vector(31 downto 0);
     signal stepfun_output_in : stepfun_array_type(7 downto 0);
     signal counter_internal : integer := 0;
+    signal not_clk : bit;
 
 begin
-    parallel_in_W <= msgi;
+    -- parallel_in_W <= msgi;
+    not_clk <= not clk;
 
     SIGMA0_INSTANCE : sigma0 port map(sigma0_input, sigma0_output);
     SIGMA1_INSTANCE : sigma1 port map(sigma1_input, sigma1_output);
 
     STEPFUN_INSTANCE : stepfun port map(
         stepfun_input(0), stepfun_input(1), stepfun_input(2), stepfun_input(3), stepfun_input(4), stepfun_input(5), stepfun_input(6), stepfun_input(7),
-        KPW_output,
+        KPW,
         stepfun_output_in(0), stepfun_output_in(1), stepfun_output_in(2), stepfun_output_in(3), stepfun_output_in(4), stepfun_output_in(5), stepfun_output_in(6), stepfun_output_in(7)
-    );
-
-    W_REGISTER_INSTANCE : W_register port map(
-        clk => clk,
-        rst => rst,
-        counter => counter_internal,
-        enable => enable_W,
-        enable_parallel => enable_parallel_W,
-        parallel_in => parallel_in_W,
-        sequential_in => sequential_in_W,
-        q => q_W
-    );
-
-    KPW_INSTANCE : reg32 port map(
-        clk => clk,
-        rst => rst,
-        enable => enable_KPW,
-        D => KPW_in,
-        Q => KPW_output
     );
 
     
@@ -158,34 +110,6 @@ begin
 
     counter <= counter_internal;
 
-end arch;
-
--- 32 REGISTER
-
-library ieee;
-use ieee.numeric_bit.all;
-
-entity reg32 is
-    port (
-        clk, rst, enable : in BIT;
-        D : in bit_vector(31 downto 0);
-        Q : out bit_vector(31 downto 0)
-    );
-end entity;
-
-architecture arch of reg32 is
-    signal dado : bit_vector(31 downto 0);
-begin
-    process (clk, rst)
-    begin
-        if rst = '1' then
-            dado <= (others => '0');
-        elsif falling_edge(clk) and enable = '1' then
-            dado <= D;
-        end if;
-    end process;
-
-    Q <= dado;
 end arch;
 
 -- STEPFUN REGISTER
@@ -219,50 +143,6 @@ begin
     Q <= dado;
 end arch ; -- arch
 
--- W REGISTER
-use work.pkg.all;
-library ieee;
-use ieee.numeric_bit.all;
-
-entity W_register is
-    port (
-        clk : in BIT;
-        rst : in BIT;
-        counter : in INTEGER;
-        enable : in BIT;
-        enable_parallel : in BIT;
-        parallel_in : in bit_vector(511 downto 0);
-        sequential_in : in bit_vector(31 downto 0);
-        q : out W_array(63 downto 0)
-    );
-end entity;
-architecture arch of W_register is
-    signal W : W_array(63 downto 0);
-begin
-
-    process (clk, rst)
-    begin
-        if rst = '1' then
-            for i in 0 to 63 loop
-                W(i) <= (others => '0');
-            end loop;
-
-        elsif (rising_edge(clk)) and enable = '1' then
-            if enable_parallel = '1' then
-                for i in 0 to 15 loop
-                    W(i + counter) <= parallel_in((i + 1) * 31 + i downto i * 31 + i);
-                end loop;
-            else
-                W(counter) <= sequential_in;
-            end if;
-        end if;
-    end process;
-
-    q <= W(63 downto 0);
-
-end architecture;
-
-
 
 library ieee;
 use ieee.numeric_bit.all;
@@ -272,17 +152,16 @@ use work.pkg.all;
 entity multisteps_UC is
     port (
         sigma1_input, sigma0_input : out bit_vector(31 downto 0);
-        sequential_in_W : out bit_vector(31 downto 0);
-        q_W : in W_array(63 downto 0);
-        KPW_in : out bit_vector(31 downto 0);
+        -- sequential_in_W : out bit_vector(31 downto 0);
+        KPW : out bit_vector(31 downto 0);
         stepfun_input : out stepfun_array_type(7 downto 0);
         done : out bit;
         enable_counter : out bit;
-        enable_W, enable_parallel_W : out bit;
-        enable_KPW : out bit;
+        -- enable_W, enable_parallel_W : out bit;
         enable_stepfun_output : out bit;
         sigma0_output, sigma1_output : in bit_vector(31 downto 0);
         stepfun_output_out : in stepfun_array_type(7 downto 0);
+        msgi : in bit_vector(511 downto 0);
         rst, clk : in bit;
         counter : in integer;
         haso : out bit_vector(255 downto 0)
@@ -320,9 +199,11 @@ architecture arch of multisteps_UC is
     
     constant t : integer := 16;
 
-    signal q_W_atual, q_W_0 : bit_vector(31 downto 0);
+    type W_array is array (NATURAL range <>) of bit_vector(31 downto 0);
 
-    type state_t is (inicio, calcula_W, calcula_KPW, calcula_stepfun, fim);
+    signal q_W : W_array(16 downto 0);
+    
+    type state_t is (inicio, calcula_W, fim);
     signal next_state, current_state: state_t;  
 begin        
 
@@ -332,6 +213,19 @@ begin
         current_state <= inicio;
       elsif (rising_edge(clk)) then
         current_state <= next_state;
+
+        if counter>=16 then
+
+            for i in 16 downto 1 loop
+                q_W(i-1) <= q_W(i);
+            end loop; -- W_SHIFT
+
+            q_W(15) <= bit_vector(unsigned(sigma1_output) + unsigned(q_W(9)) + unsigned(sigma0_output) + unsigned(q_W(0)));
+        else
+            for i in 0 to 15 loop
+                q_W(i) <= msgi((i+1)*31+i downto i*31+i);
+            end loop;
+        end if;
       end if;
     end process;
     
@@ -339,44 +233,59 @@ begin
   
     -- Logica de proximo estado
     next_state <=
-      calcula_W when current_state=inicio or current_state=calcula_stepfun else
-      calcula_KPW when current_state=calcula_W else
-      calcula_stepfun   when current_state=calcula_KPW and counter<=62 else
+      calcula_W when current_state=inicio and counter<=62 else
+--       calcula_stepfun   when current_state=calcula_W and counter<=62 else
       fim;
   
 
-    enable_W <= '1' when (current_state=inicio or current_state=calcula_W) and (counter<=0 or counter>=16) else '0';
-    enable_parallel_W <= '1' when (current_state=inicio or current_state=calcula_W) and counter <= 0 else '0';
-    GENERATE_STEPFUN_INPUT : for i in 0 to 7 generate
-        stepfun_input(i) <= stepfun_output_out(i);
-    end generate GENERATE_STEPFUN_INPUT;
+    -- enable_W <= '1' when (counter<=0 or counter>=16) and counter<=63 else '0';
+    -- enable_parallel_W <= '1' when (current_state=inicio or current_state=calcula_W) and counter <= 0 else '0';
+    -- GENERATE_STEPFUN_INPUT : for i in 0 to 7 generate
+    --     stepfun_input(i) <= stepfun_output_out(i);
+    -- end generate GENERATE_STEPFUN_INPUT;
 
-    sigma1_input <= q_W(counter-2)  when counter>=16 else (others=>'0');
-    sigma0_input <= q_W(counter-15) when counter>=16 else (others=>'0');
-    sequential_in_W <= bit_vector(unsigned(sigma1_output) + unsigned(q_W(counter-7)) + unsigned(sigma0_output) + unsigned(q_W(counter-16))) when counter>=16 else 
-                       (others=>'0');
-
-    enable_KPW <= '1' when current_state=calcula_W else '0';
-    KPW_in <= bit_vector(unsigned(q_W(counter)) + unsigned(K(counter))) when counter>=0 and counter<=63 else 
-              (others=>'0');
+    stepfun_input(0) <= stepfun_output_out(0);
+    stepfun_input(1) <= stepfun_output_out(1);
+    stepfun_input(2) <= stepfun_output_out(2);
+    stepfun_input(3) <= stepfun_output_out(3);
+    stepfun_input(4) <= stepfun_output_out(4);
+    stepfun_input(5) <= stepfun_output_out(5);
+    stepfun_input(6) <= stepfun_output_out(6);
+    stepfun_input(7) <= stepfun_output_out(7);
     
-    q_W_atual <= q_W(counter) when counter>=0 and counter <= 15 else
-    			 q_W(15)      when counter>=0 else
-              	 (others=>'0');
-    q_W_0 <= q_W(t-2) when counter>=16 else (others=>'0');
+    
 
-    enable_stepfun_output <= '1' when current_state=calcula_stepfun or (current_state=fim and counter<=63) else '0';
-    enable_counter <= '1' when current_state=calcula_stepfun or current_state=fim else '0';
+    sigma1_input <= q_W(14)  when counter>=16 else (others=>'0');
+    sigma0_input <= q_W(1) when counter>=16 else (others=>'0');
+
+    -- GENERATE_SEQUENTIAL : for i in 16 to 63 generate
+        -- q_W(i) <= bit_vector(unsigned(sigma1_output) + unsigned(q_W(i-7)) + unsigned(sigma0_output) + unsigned(q_W(i-16)));
+    -- end generate GENERATE_SEQUENTIAL;
+
+                       
+    KPW <= bit_vector(unsigned(q_W(counter)) + unsigned(K(counter))) when counter>=0 and counter<=15 else
+           bit_vector(unsigned(q_W(15)) + unsigned(K(counter))) when counter>=16 and counter<=63 else
+           (others=>'0');
+
+    enable_stepfun_output <= '1' when current_state=calcula_W or (current_state=fim and counter<=63) else '0';
+    enable_counter <= '1' when current_state=calcula_W or current_state=fim else '0';
 
     done <= '1' when current_state=fim else '0';
     
-    GENERATE_HASO : for i in 0 to 7 generate
-      haso((i+1)*31+i downto i*31+i) <= bit_vector(unsigned(stepfun_output_out(i)) + unsigned(H(i)));
-    end generate GENERATE_HASO;
+    -- GENERATE_HASO : for i in 0 to 7 generate
+    --   haso((i+1)*31+i downto i*31+i) <= bit_vector(unsigned(stepfun_output_out(i)) + unsigned(H(i)));
+    -- end generate GENERATE_HASO;
+
+    haso(31 downto 0) <= bit_vector(unsigned(stepfun_output_out(0)) + unsigned(H(0)) );
+    haso(63 downto 32) <= bit_vector(unsigned(stepfun_output_out(1)) + unsigned(H(1)) );
+    haso(95 downto 64) <= bit_vector(unsigned(stepfun_output_out(2)) + unsigned(H(2)) );
+    haso(127 downto 96) <= bit_vector(unsigned(stepfun_output_out(3)) + unsigned(H(3)) );
+    haso(159 downto 128) <= bit_vector(unsigned(stepfun_output_out(4)) + unsigned(H(4)) );
+    haso(191 downto 160) <= bit_vector(unsigned(stepfun_output_out(5)) + unsigned(H(5)) );
+    haso(223 downto 192) <= bit_vector(unsigned(stepfun_output_out(6)) + unsigned(H(6)) );
 
     
 end architecture;
-
 
 
 ----- MULTISTEPS
@@ -399,13 +308,11 @@ architecture arch of multisteps is
         port (
             msgi : in bit_vector(511 downto 0);
             sigma1_input, sigma0_input : in bit_vector(31 downto 0);
-            sequential_in_W : in bit_vector(31 downto 0);
-            q_W : out W_array(63 downto 0);
-            KPW_in : in bit_vector(31 downto 0);
+            -- sequential_in_W : in bit_vector(31 downto 0);
+            KPW : in bit_vector(31 downto 0);
             stepfun_input : in stepfun_array_type(7 downto 0);
             done, rst, clk : in bit;
-            enable_W, enable_parallel_W : in bit;
-            enable_KPW : in bit;
+            -- enable_W, enable_parallel_W : in bit;
             enable_counter : in bit;
             enable_stepfun_output : in bit;
             sigma0_output, sigma1_output : out bit_vector(31 downto 0);
@@ -417,17 +324,16 @@ architecture arch of multisteps is
     component multisteps_UC is
         port (
             sigma1_input, sigma0_input : out bit_vector(31 downto 0);
-            sequential_in_W : out bit_vector(31 downto 0);
-            q_W : in W_array(63 downto 0);
-            KPW_in : out bit_vector(31 downto 0);
+            -- sequential_in_W : out bit_vector(31 downto 0);
+            KPW : out bit_vector(31 downto 0);
             stepfun_input : out stepfun_array_type(7 downto 0);
             done : out bit;
-            enable_W, enable_parallel_W : out bit;
-            enable_KPW : out bit;
+            -- enable_W, enable_parallel_W : out bit;
             enable_counter : out bit;
             enable_stepfun_output : out bit;
             sigma0_output, sigma1_output : in bit_vector(31 downto 0);
             stepfun_output_out : in stepfun_array_type(7 downto 0);
+            msgi : in bit_vector(511 downto 0);
             rst, clk : in bit;
             counter : in integer;
             haso : out bit_vector(255 downto 0)
@@ -442,14 +348,14 @@ architecture arch of multisteps is
     signal sigma0_input, sigma0_output : bit_vector(31 downto 0);
     signal sigma1_input, sigma1_output : bit_vector(31 downto 0);
 
-    signal sequential_in_W : bit_vector(31 downto 0);
-    signal q_W : W_array(63 downto 0);
+    -- signal sequential_in_W : bit_vector(31 downto 0);
     
-    signal KPW_in : bit_vector(31 downto 0);
+    signal KPW : bit_vector(31 downto 0);
     signal enable_counter : bit;
 
 
-    signal enable_W, enable_parallel_W, enable_KPW, enable_stepfun_output : bit;
+    -- signal enable_W, enable_parallel_W, enable_stepfun_output : bit;
+    signal enable_stepfun_output : bit;
     signal done_internal : bit;
     signal not_clk : bit;
     
@@ -459,16 +365,14 @@ MULTISTEPS_FD_INST: multisteps_FD port map(
     msgi => msgi,
     sigma1_input => sigma1_input,
     sigma0_input => sigma0_input,
-    sequential_in_W => sequential_in_W,
-    q_W => q_W,
-    KPW_in => KPW_in,
+    -- sequential_in_W => sequential_in_W,
+    KPW => KPW,
     stepfun_input => stepfun_input,
     rst => rst,
     done => done_internal,
     clk => not_clk,
-    enable_W => enable_W,
-    enable_parallel_W => enable_parallel_W,
-    enable_KPW => enable_KPW,
+    -- enable_W => enable_W,
+    -- enable_parallel_W => enable_parallel_W,
     enable_stepfun_output => enable_stepfun_output,
     sigma0_output => sigma0_output,
     sigma1_output => sigma1_output,
@@ -480,26 +384,120 @@ MULTISTEPS_FD_INST: multisteps_FD port map(
 MULTISTEPS_UC_INST: multisteps_UC port map(
     sigma1_input => sigma1_input,
     sigma0_input => sigma0_input,
-    sequential_in_W => sequential_in_W,
-    q_W => q_W,
-    KPW_in => KPW_in,
+    -- sequential_in_W => sequential_in_W,
+    KPW => KPW,
     stepfun_input => stepfun_input,
     done => done_internal,
-    enable_W => enable_W,
-    enable_parallel_W => enable_parallel_W,
-    enable_KPW => enable_KPW,
+    -- enable_W => enable_W,
+    -- enable_parallel_W => enable_parallel_W,
     enable_stepfun_output => enable_stepfun_output,
     sigma0_output => sigma0_output,
     sigma1_output => sigma1_output,
     stepfun_output_out => stepfun_output_out,
     enable_counter => enable_counter,
+    msgi => msgi,
     rst => rst,
     clk => clk,
     counter => counter,
     haso => haso
 );
 
-done <= done_internal;
+    done <= '1' when done_internal='1' and counter>=64 else '0';
+    
+-- done <= done_internal;
 not_clk <= not clk;
 
 end arch ; -- arch
+
+
+
+-------------------------------------------------------------------------------
+-- Author: Alan Jose dos Santos (alanjose@usp.br)
+-- Author: Lucas Franco
+-- Module Name: exp4_multisteps
+-------------------------------------------------------------------------------
+----- MULTISTEPS
+
+
+
+
+----------------------------------------------------------------
+
+
+entity exp4_multisteps_top is
+    port (
+        SW : in bit_vector(9 downto 0);
+		  CLOCK_50 : in bit;
+        KEY : in bit_vector(3 downto 0);
+        LEDR : out bit_vector(9 downto 0);
+        HEX0 : out bit_vector(6 downto 0);
+        HEX1 : out bit_vector(6 downto 0);
+        HEX2 : out bit_vector(6 downto 0);
+        HEX3 : out bit_vector(6 downto 0);
+        HEX4 : out bit_vector(6 downto 0);
+        HEX5 : out bit_vector(6 downto 0)
+    );
+end exp4_multisteps_top;
+
+architecture arch of exp4_multisteps_top is
+    component hex2seg is
+        port (
+            hex : in bit_vector(3 downto 0); -- Entrada binaria
+            seg : out bit_vector(6 downto 0) -- Saída hexadecimal
+            -- A saída corresponde aos segmentos gfedcba nesta ordem. Cobre 
+            -- todos valores possíveis de entrada.
+        );
+    end component;
+    component multisteps is
+        port (
+            clk, rst : in bit;
+            msgi : in bit_vector(511 downto 0);
+            haso : out bit_vector(255 downto 0);
+            done : out bit
+        );
+    end component;
+
+    signal ao_result,
+    bo_result,
+    co_result,
+    do_result,
+    eo_result,
+    fo_result,
+    go_result,
+    ho_result : bit_vector(31 downto 0);
+
+    signal clk, rst, done : bit;
+    signal msgi : bit_vector(511 downto 0);
+    signal haso : bit_vector(255 downto 0);
+
+    signal op : bit_vector(1 downto 0);
+begin
+
+    MSGI_GENERATE : for i in 0 to 63 GENERATE
+        msgi((i+1)*7+i downto i*7+i) <= SW(7 downto 0);
+    end GENERATE;
+	 clk <= CLOCK_50;
+    
+    
+    MULTISTEPS_INSTANCE : multisteps port map(
+        clk, rst,
+        msgi,
+        haso,
+        done
+    );
+
+    rst <= '1' when KEY(3) = '0' else '0';
+
+
+    HEX0C : hex2seg port map(haso(3 downto 0), HEX0);
+    HEX1C : hex2seg port map(haso(7 downto 4), HEX1);
+    HEX2C : hex2seg port map(haso(11 downto 8), HEX2);
+    HEX3C : hex2seg port map(haso(15 downto 12), HEX3);
+    HEX4C : hex2seg port map(haso(19 downto 16), HEX4);
+    HEX5C : hex2seg port map(haso(23 downto 20), HEX5);
+
+    -- LEDR <= "00" & result(31 downto 24);
+    LEDR <= "000000000" & done;
+
+
+end architecture;

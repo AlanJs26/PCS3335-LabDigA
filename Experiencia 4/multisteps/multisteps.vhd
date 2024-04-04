@@ -118,7 +118,18 @@ MULTISTEPS_UC_INST: multisteps_UC port map(
     haso => haso
 );
 
-done <= done_internal;
+    DONE_PROCESS : process (done_internal, clk)
+    begin
+      if rising_edge(clk) then
+          if done_internal='1' and counter>=64 then
+              done<='1';	
+          else 
+              done<='0';
+          end if;
+      end if;
+    end process;
+    
+-- done <= done_internal;
 not_clk <= not clk;
 
 end arch ; -- arch

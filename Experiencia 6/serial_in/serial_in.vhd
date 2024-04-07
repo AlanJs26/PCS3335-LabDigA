@@ -64,17 +64,21 @@ begin
     wait_start when current_state=rest and start='1' else
     reset_clock when current_state=wait_start and serial_data_p='0' and start='1' else
     receive_data when current_state=reset_clock else
-    rest when current_state=receive_data and data_counter>=WIDTH+2 else
+    rest when (current_state=receive_data and data_counter>=WIDTH+2) else
     next_state;
 
   clock_div_rst <= '1' when current_state=reset_clock else '0';
 
   parity_bit <= data(0);
   parallel_data <= data(WIDTH downto 1);
-  done <= '1' when current_state=rest else '0';
+  done <= '1' when current_state=rest or data_counter>=WIDTH+2 else '0';
 
-  MAIN_PROCESS : process (clock_div, clock_div_rst)
+  MAIN_PROCESS : process (clock_div, clock_div_rst, reset)
   begin
+    if reset = '1' then
+      data_counter <= 0;
+    end if;
+
     if rising_edge(clock_div_rst) then
       data_counter <= 0;
       data <= (others=>'0');

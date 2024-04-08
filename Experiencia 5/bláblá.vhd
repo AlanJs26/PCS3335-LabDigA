@@ -38,13 +38,10 @@ end comportamental;
 
 -----------------------------------------
 		
-library ieee;
-use ieee.std_logic_1164.all;
-
 entity display is
   port (
-    input: in   std_logic_vector(7 downto 0); -- ASCII 8 bits
-    output: out std_logic_vector(7 downto 0)  -- ponto + abcdefg
+    input: in   bit_vector(7 downto 0); -- ASCII 8 bits
+    output: out bit_vector(7 downto 0)  -- ponto + abcdefg
   );
 end display;
 

@@ -51,7 +51,7 @@ begin
     identifier : process (clock, reset)
     begin
 
-        if reset = '1' or falling_edge(reset) then
+        if reset = '1' then
             serial_o <= high_low;
             tx_done_s <= '0';
             counter <= -1;

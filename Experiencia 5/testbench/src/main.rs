@@ -14,7 +14,6 @@ fn rand_number(rng: &mut ThreadRng, bits: u32) -> u32 {
 
    let x: f32 = rng.gen();
 
-   // println!("Random: {}", x);
    if bits == 1 {
        return match x>0.5 {
            true => 1,
@@ -26,27 +25,27 @@ fn rand_number(rng: &mut ThreadRng, bits: u32) -> u32 {
 }
 
 fn gen_output(prev_reset: bool, prev_tx_go : bool, reset : bool, tx_go : bool, input : u32) -> String {
-
     if reset {
         unimplemented!();
     }
     String::from("alan")
 }
 
-fn xor_number(number: u32) -> u32{
+fn xor_number(mut number: u32) -> u32{
     let mask: u32 = 1;
-    let mut result: u32 = (number>>1) & mask;
+
+    let mut result: u32 = number & mask;
+    number = number >> 1;
 
     while number>0 {
-        number = number >>> 1;
         result = result ^ (number & mask);
+        number = number >> 1;
     }
     return result as u32;
 }
 
 fn main() {
     let mut rng = rand::thread_rng();
-
 
     // let mut prev_reset : bool = false;
     // let mut prev_tx_go : bool = false;
@@ -56,21 +55,11 @@ fn main() {
         // let tx_go : bool = rng.gen();
         // let reset = rand_number(&mut rng, 1);
         // let tx_go = rand_number(&mut rng, 1);
-        //
+        
         let sw = rand_number(&mut rng, 8);
-        //
-        // let output : &str = &gen_output(prev_reset, prev_tx_go, reset, tx_go, sw);
-        //
-        // println!("{}",output);
-        //
-        // prev_reset = reset;
-        // prev_tx_go = tx_go;
 
-        // println!("{} {} {:08b}", reset, tx_go, sw);
         println!("{:08b} {}", sw, xor_number(sw));
-            // print_binary(sw);
+        // print_binary(sw);
         
     }
-
-    // println!("Random: {}", sw);
 }

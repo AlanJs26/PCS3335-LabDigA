@@ -22,7 +22,8 @@ architecture tb of testbench is
 
     component clock_diviser is
         generic (
-            CLOCK_MUL : positive
+          INPUT_CLOCK : integer; 
+          TARGET_CLOCK : integer
         );
         port (
             i_clk : in bit;
@@ -45,7 +46,8 @@ architecture tb of testbench is
             serial_o : out bit
         );
     end component;
-    signal clock, reset : bit;
+
+    signal reset_serial_in, reset_serial_out : bit;
 
     -- CONSTANTS
     constant POLARITY : boolean := TRUE;
@@ -63,8 +65,20 @@ architecture tb of testbench is
     -- serial_out signals
     signal tx_go, tx_done : bit;
     signal data : bit_vector(7 downto 0);
+    
     -- clock signals
-    signal clock_div_rst, clock_div : bit;
+    signal clock, clock_div : bit;
+
+	constant INPUT_CLOCK : integer := 50000000;
+    constant TARGET_CLOCK : integer := INPUT_CLOCK/4;
+    -- constant TARGET_CLOCK : integer := 4800*CLOCK_MUL;
+
+    -- testbench signals
+    constant clockPeriod : time := (1 sec)/(INPUT_CLOCK);
+    constant clock_divPeriod : time := (1 sec)/(TARGET_CLOCK);
+    signal keep_simulating : bit := '0';
+
+    signal current_test : integer := 0;
 
     function eval_polarity(
         value : bit) return bit is
@@ -75,13 +89,6 @@ architecture tb of testbench is
             return not value;
         end if;
     end function;
-
-    -- testbench signals
-    constant clockPeriod : time := 2 ns;
-    constant clock_divPeriod : time := (clockPeriod*(2**CLOCK_MUL))/4;
-    signal keep_simulating : bit := '0';
-
-    signal current_test : integer := 0;
 begin
 
     clock <= (not clock) and keep_simulating after clockPeriod/2;
@@ -94,17 +101,18 @@ begin
         CLOCK_MUL => CLOCK_MUL
     )
     port map(
-        clock, reset, start, serial_data,
+        clock, reset_serial_in, start, serial_data,
         done, parity_bit,
         parallel_data
     );
 
     CLOCK_DIVISER_INSTANCE : clock_diviser
     generic map(
-        CLOCK_MUL => CLOCK_MUL
+        INPUT_CLOCK => INPUT_CLOCK,
+        TARGET_CLOCK => TARGET_CLOCK
     )
     port map(
-        clock, clock_div_rst, clock_div
+        clock, '0', clock_div
     );
 
     SERIAL_OUT_INSTANCE : serial_out
@@ -115,7 +123,7 @@ begin
         STOP_BITS => STOP_BITS
     )
     port map(
-        clock_div, reset, tx_go,
+        clock_div, reset_serial_out, tx_go,
         tx_done,
         data,
         serial_data
@@ -133,54 +141,108 @@ begin
         constant tests : tests_array :=
         (
         ("11101010", '1'), --00
-        ("11101010", '1') --01
+        ("11101010", '1'), --01
+        ("11100000", '1'), --02
+        ("10111001", '1'), --03
+        ("00101000", '0'), --04
+        ("10110010", '0'), --05
+        ("01110010", '0'), --06
+        ("01000111", '0'), --07
+        ("10100100", '1'), --08
+        ("11010000", '1'), --09
+        ("00101001", '1'), --10
+        ("11001010", '0'), --11
+        ("01011010", '0'), --12
+        ("10011110", '1'), --13
+        ("00001000", '1'), --14
+        ("01110100", '0'), --15
+        ("10010011", '0'), --16
+        ("10100110", '0'), --17
+        ("10101010", '0'), --18
+        ("01110110", '1'), --19
+        ("01100111", '1'), --20
+        ("01010100", '1')  --21
         );
 
+        
     begin
         assert false report "Test start." severity note;
         keep_simulating <= '1';
+
+        -- wait for clock_divPeriod*4;
+        -- assert false report "Test done." severity note;
+        -- keep_simulating <= '0';
+        -- wait;
+
+        reset_serial_in <= '1';
+        reset_serial_out <= '1';
+        wait until falling_edge(clock);
+        wait for clock_divPeriod/4;
+        reset_serial_in <= '0';
+        reset_serial_out <= '0';
+        wait until falling_edge(clock);
+        wait for clock_divPeriod/4;
+
+
+        for i in 0 to 7 loop            
+            data(i) <= tests(0).data(7-i);
+        end loop ;
+
+        start <= '1';
+        tx_go <= '1';
+
+
 
         for k in tests' range loop
             current_test <= k;
 
 
-            clock_div_rst <= '1';
-            wait until falling_edge(clock);
-            wait for clock_divPeriod/4;
-            clock_div_rst <= '0';
-            wait until falling_edge(clock);
-            wait for clock_divPeriod/4;
+            -- start <= '0';
+            -- wait until falling_edge(clock);
+            -- wait for clock_divPeriod/4;
+            -- start <= '1';
+            -- wait until falling_edge(clock);
+            -- wait for clock_divPeriod/4;
 
-            tx_go <= '0';
-            reset <= '1';
-            wait until falling_edge(clock_div);
-            wait for clock_divPeriod/4;
-            reset <= '0';
-            wait until falling_edge(clock_div);
-            wait for clock_divPeriod/4;
+            -- tx_go <= '0';
+            -- reset_serial_out <= '1';
+            -- wait until falling_edge(clock_div);
+            -- wait for clock_divPeriod/4;
+            -- reset_serial_out <= '0';
+            -- wait until falling_edge(clock_div);
+            -- wait for clock_divPeriod/4;
 
             for i in 0 to 7 loop            
                 data(i) <= tests(k).data(7-i);
             end loop ;
-            start <= '1';
+            -- start <= '1';
 
-            wait until falling_edge(clock_div);
-            wait for clock_divPeriod/4;
+            -- wait until falling_edge(clock_div);
+            -- wait for clock_divPeriod/4;
 
-            tx_go <= '1';
+            -- tx_go <= '1';
+
+            -- wait until falling_edge(clock_div);
+            -- wait for clock_divPeriod/4;
+            -- start <= '0';            
+
 
             wait until tx_done = '1';
+            -- tx_go <= '0';
+            
             wait until falling_edge(clock_div);
             wait for (clock_divPeriod)/4;
             -- wait for clock_divPeriod*10;
 
             assert (tests(k).data = parallel_data) report "Fail (parallel_data) {" & integer'image(k) & "}" severity error;
             assert (tests(k).parity_bit = parity_bit) report "Fail (parity_bit) {" & integer'image(k) & "}" severity error;
+            
+            -- wait until falling_edge(clock_div);
+            -- wait for clock_divPeriod/4;
 
             -- assert (tests(k).tx_done = tx_done) report "Fail (done): " & tests(k).str & "{" & integer'image(k) & "}" severity error;
         end loop;
 
-        -- wait until done = '1';
         wait until falling_edge(clock);
         wait for clockPeriod/4;
 

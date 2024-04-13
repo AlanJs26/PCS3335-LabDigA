@@ -33,6 +33,17 @@ fn gen_output(prev_reset: bool, prev_tx_go : bool, reset : bool, tx_go : bool, i
     String::from("alan")
 }
 
+fn xor_number(number: u32) -> u32{
+    let mask: u32 = 1;
+    let mut result: u32 = (number>>1) & mask;
+
+    while number>0 {
+        number = number >>> 1;
+        result = result ^ (number & mask);
+    }
+    return result as u32;
+}
+
 fn main() {
     let mut rng = rand::thread_rng();
 
@@ -43,8 +54,8 @@ fn main() {
     for _i in 0..20 {
         // let reset : bool = rng.gen();
         // let tx_go : bool = rng.gen();
-        let reset = rand_number(&mut rng, 1);
-        let tx_go = rand_number(&mut rng, 1);
+        // let reset = rand_number(&mut rng, 1);
+        // let tx_go = rand_number(&mut rng, 1);
         //
         let sw = rand_number(&mut rng, 8);
         //
@@ -55,7 +66,8 @@ fn main() {
         // prev_reset = reset;
         // prev_tx_go = tx_go;
 
-        println!("{} {} {:08b}", reset, tx_go, sw);
+        // println!("{} {} {:08b}", reset, tx_go, sw);
+        println!("{:08b} {}", sw, xor_number(sw));
             // print_binary(sw);
         
     }

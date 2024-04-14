@@ -69,7 +69,7 @@ architecture tb of testbench is
     -- clock signals
     signal clock, clock_div : bit;
 
-	constant INPUT_CLOCK : integer := 50000000;
+	constant INPUT_CLOCK : integer := 4800*4;
     constant TARGET_CLOCK : integer := INPUT_CLOCK/4;
     -- constant TARGET_CLOCK : integer := 4800*CLOCK_MUL;
 
@@ -213,7 +213,7 @@ begin
             -- wait for clock_divPeriod/4;
 
             for i in 0 to 7 loop            
-                data(i) <= tests(k).data(7-i);
+                data(i) <= tests(k).data(i);
             end loop ;
             -- start <= '1';
 

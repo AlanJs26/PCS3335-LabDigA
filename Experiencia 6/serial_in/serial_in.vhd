@@ -55,7 +55,8 @@ begin
 
   CLOCK_DIVISER_INSTANCE : clock_diviser 
   generic map(
-      INPUT_CLOCK => 50000000,
+      -- INPUT_CLOCK => 50000000,
+      INPUT_CLOCK => 4800*4,
       TARGET_CLOCK => 4800
       -- TARGET_CLOCK => 50000000/4
       -- TARGET_CLOCK => 4800*CLOCK_MUL

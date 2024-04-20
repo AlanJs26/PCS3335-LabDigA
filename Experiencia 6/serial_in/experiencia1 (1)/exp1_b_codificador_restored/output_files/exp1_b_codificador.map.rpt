@@ -1,0 +1,598 @@
+Analysis & Synthesis report for exp1_b_codificador
+Tue Apr 16 17:40:22 2024
+Quartus Prime Version 20.1.1 Build 720 11/11/2020 SJ Lite Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Analysis & Synthesis Summary
+  3. Analysis & Synthesis Settings
+  4. Parallel Compilation
+  5. Analysis & Synthesis Source Files Read
+  6. Analysis & Synthesis Resource Usage Summary
+  7. Analysis & Synthesis Resource Utilization by Entity
+  8. State Machine - |exp6_serial_in_top|serial_in:SERIAL_IN_INSTANCE|current_state
+  9. User-Specified and Inferred Latches
+ 10. General Register Statistics
+ 11. Multiplexer Restructuring Statistics (Restructuring Performed)
+ 12. Parameter Settings for User Entity Instance: clock_diviser:CLOCK_DIVISER_INSTANCE
+ 13. Parameter Settings for User Entity Instance: serial_in:SERIAL_IN_INSTANCE
+ 14. Parameter Settings for User Entity Instance: serial_in:SERIAL_IN_INSTANCE|clock_diviser:CLOCK_DIVISER_INSTANCE
+ 15. Parameter Settings for User Entity Instance: serial_in:SERIAL_IN_INSTANCE|bit_reverser:BIT_REVERSER_INSTANCE
+ 16. Port Connectivity Checks: "serial_in:SERIAL_IN_INSTANCE"
+ 17. Port Connectivity Checks: "clock_diviser:CLOCK_DIVISER_INSTANCE"
+ 18. Post-Synthesis Netlist Statistics for Top Partition
+ 19. Elapsed Time Per Partition
+ 20. Analysis & Synthesis Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2020  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+
+
+
++-------------------------------------------------------------------------------+
+; Analysis & Synthesis Summary                                                  ;
++---------------------------------+---------------------------------------------+
+; Analysis & Synthesis Status     ; Successful - Tue Apr 16 17:40:22 2024       ;
+; Quartus Prime Version           ; 20.1.1 Build 720 11/11/2020 SJ Lite Edition ;
+; Revision Name                   ; exp1_b_codificador                          ;
+; Top-level Entity Name           ; exp6_serial_in_top                          ;
+; Family                          ; Cyclone V                                   ;
+; Logic utilization (in ALMs)     ; N/A                                         ;
+; Total registers                 ; 145                                         ;
+; Total pins                      ; 140                                         ;
+; Total virtual pins              ; 0                                           ;
+; Total block memory bits         ; 0                                           ;
+; Total DSP Blocks                ; 0                                           ;
+; Total HSSI RX PCSs              ; 0                                           ;
+; Total HSSI PMA RX Deserializers ; 0                                           ;
+; Total HSSI TX PCSs              ; 0                                           ;
+; Total HSSI PMA TX Serializers   ; 0                                           ;
+; Total PLLs                      ; 0                                           ;
+; Total DLLs                      ; 0                                           ;
++---------------------------------+---------------------------------------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Settings                                                                                             ;
++---------------------------------------------------------------------------------+--------------------+--------------------+
+; Option                                                                          ; Setting            ; Default Value      ;
++---------------------------------------------------------------------------------+--------------------+--------------------+
+; Device                                                                          ; 5CEBA4F23C7        ;                    ;
+; Top-level entity name                                                           ; exp6_serial_in_top ; exp1_b_codificador ;
+; Family name                                                                     ; Cyclone V          ; Cyclone V          ;
+; Optimization Technique                                                          ; Speed              ; Balanced           ;
+; Use smart compilation                                                           ; Off                ; Off                ;
+; Enable parallel Assembler and Timing Analyzer during compilation                ; On                 ; On                 ;
+; Enable compact report table                                                     ; Off                ; Off                ;
+; Restructure Multiplexers                                                        ; Auto               ; Auto               ;
+; MLAB Add Timing Constraints For Mixed-Port Feed-Through Mode Setting Don't Care ; Off                ; Off                ;
+; Create Debugging Nodes for IP Cores                                             ; Off                ; Off                ;
+; Preserve fewer node names                                                       ; On                 ; On                 ;
+; Intel FPGA IP Evaluation Mode                                                   ; Enable             ; Enable             ;
+; Verilog Version                                                                 ; Verilog_2001       ; Verilog_2001       ;
+; VHDL Version                                                                    ; VHDL_1993          ; VHDL_1993          ;
+; State Machine Processing                                                        ; Auto               ; Auto               ;
+; Safe State Machine                                                              ; Off                ; Off                ;
+; Extract Verilog State Machines                                                  ; On                 ; On                 ;
+; Extract VHDL State Machines                                                     ; On                 ; On                 ;
+; Ignore Verilog initial constructs                                               ; Off                ; Off                ;
+; Iteration limit for constant Verilog loops                                      ; 5000               ; 5000               ;
+; Iteration limit for non-constant Verilog loops                                  ; 250                ; 250                ;
+; Add Pass-Through Logic to Inferred RAMs                                         ; On                 ; On                 ;
+; Infer RAMs from Raw Logic                                                       ; On                 ; On                 ;
+; Parallel Synthesis                                                              ; On                 ; On                 ;
+; DSP Block Balancing                                                             ; Auto               ; Auto               ;
+; NOT Gate Push-Back                                                              ; On                 ; On                 ;
+; Power-Up Don't Care                                                             ; On                 ; On                 ;
+; Remove Redundant Logic Cells                                                    ; Off                ; Off                ;
+; Remove Duplicate Registers                                                      ; On                 ; On                 ;
+; Ignore CARRY Buffers                                                            ; Off                ; Off                ;
+; Ignore CASCADE Buffers                                                          ; Off                ; Off                ;
+; Ignore GLOBAL Buffers                                                           ; Off                ; Off                ;
+; Ignore ROW GLOBAL Buffers                                                       ; Off                ; Off                ;
+; Ignore LCELL Buffers                                                            ; Off                ; Off                ;
+; Ignore SOFT Buffers                                                             ; On                 ; On                 ;
+; Limit AHDL Integers to 32 Bits                                                  ; Off                ; Off                ;
+; Carry Chain Length                                                              ; 70                 ; 70                 ;
+; Auto Carry Chains                                                               ; On                 ; On                 ;
+; Auto Open-Drain Pins                                                            ; On                 ; On                 ;
+; Perform WYSIWYG Primitive Resynthesis                                           ; Off                ; Off                ;
+; Auto ROM Replacement                                                            ; On                 ; On                 ;
+; Auto RAM Replacement                                                            ; On                 ; On                 ;
+; Auto DSP Block Replacement                                                      ; On                 ; On                 ;
+; Auto Shift Register Replacement                                                 ; Auto               ; Auto               ;
+; Allow Shift Register Merging across Hierarchies                                 ; Auto               ; Auto               ;
+; Auto Clock Enable Replacement                                                   ; On                 ; On                 ;
+; Strict RAM Replacement                                                          ; Off                ; Off                ;
+; Allow Synchronous Control Signals                                               ; On                 ; On                 ;
+; Force Use of Synchronous Clear Signals                                          ; Off                ; Off                ;
+; Auto Resource Sharing                                                           ; Off                ; Off                ;
+; Allow Any RAM Size For Recognition                                              ; Off                ; Off                ;
+; Allow Any ROM Size For Recognition                                              ; Off                ; Off                ;
+; Allow Any Shift Register Size For Recognition                                   ; Off                ; Off                ;
+; Use LogicLock Constraints during Resource Balancing                             ; On                 ; On                 ;
+; Ignore translate_off and synthesis_off directives                               ; Off                ; Off                ;
+; Timing-Driven Synthesis                                                         ; On                 ; On                 ;
+; Report Parameter Settings                                                       ; On                 ; On                 ;
+; Report Source Assignments                                                       ; On                 ; On                 ;
+; Report Connectivity Checks                                                      ; On                 ; On                 ;
+; Ignore Maximum Fan-Out Assignments                                              ; Off                ; Off                ;
+; Synchronization Register Chain Length                                           ; 3                  ; 3                  ;
+; Power Optimization During Synthesis                                             ; Normal compilation ; Normal compilation ;
+; HDL message level                                                               ; Level2             ; Level2             ;
+; Suppress Register Optimization Related Messages                                 ; Off                ; Off                ;
+; Number of Removed Registers Reported in Synthesis Report                        ; 5000               ; 5000               ;
+; Number of Swept Nodes Reported in Synthesis Report                              ; 5000               ; 5000               ;
+; Number of Inverted Registers Reported in Synthesis Report                       ; 100                ; 100                ;
+; Clock MUX Protection                                                            ; On                 ; On                 ;
+; Auto Gated Clock Conversion                                                     ; Off                ; Off                ;
+; Block Design Naming                                                             ; Auto               ; Auto               ;
+; SDC constraint protection                                                       ; Off                ; Off                ;
+; Synthesis Effort                                                                ; Auto               ; Auto               ;
+; Shift Register Replacement - Allow Asynchronous Clear Signal                    ; On                 ; On                 ;
+; Pre-Mapping Resynthesis Optimization                                            ; Off                ; Off                ;
+; Analysis & Synthesis Message Level                                              ; Medium             ; Medium             ;
+; Disable Register Merging Across Hierarchies                                     ; Auto               ; Auto               ;
+; Resource Aware Inference For Block RAM                                          ; On                 ; On                 ;
+; Automatic Parallel Synthesis                                                    ; On                 ; On                 ;
+; Partial Reconfiguration Bitstream ID                                            ; Off                ; Off                ;
++---------------------------------------------------------------------------------+--------------------+--------------------+
+
+
++------------------------------------------+
+; Parallel Compilation                     ;
++----------------------------+-------------+
+; Processors                 ; Number      ;
++----------------------------+-------------+
+; Number detected on machine ; 8           ;
+; Maximum allowed            ; 4           ;
+;                            ;             ;
+; Average used               ; 1.00        ;
+; Maximum used               ; 4           ;
+;                            ;             ;
+; Usage by Processor         ; % Time Used ;
+;     Processor 1            ; 100.0%      ;
+;     Processors 2-4         ;   0.0%      ;
++----------------------------+-------------+
+
+
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Source Files Read                                                                                                                                           ;
++----------------------------------+-----------------+-----------------+-------------------------------------------------------------------------------------------------+---------+
+; File Name with User-Entered Path ; Used in Netlist ; File Type       ; File Name with Absolute Path                                                                    ; Library ;
++----------------------------------+-----------------+-----------------+-------------------------------------------------------------------------------------------------+---------+
+; src/serial_in.vhd                ; yes             ; User VHDL File  ; C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd     ;         ;
+; src/clock_divider.vhd            ; yes             ; User VHDL File  ; C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/clock_divider.vhd ;         ;
+; src/ascii_display.vhd            ; yes             ; User VHDL File  ; C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/ascii_display.vhd ;         ;
+; exp6_serial_in.vhd               ; yes             ; User VHDL File  ; C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd    ;         ;
++----------------------------------+-----------------+-----------------+-------------------------------------------------------------------------------------------------+---------+
+
+
++----------------------------------------------------------------------------------------+
+; Analysis & Synthesis Resource Usage Summary                                            ;
++---------------------------------------------+------------------------------------------+
+; Resource                                    ; Usage                                    ;
++---------------------------------------------+------------------------------------------+
+; Estimate of Logic utilization (ALMs needed) ; 126                                      ;
+;                                             ;                                          ;
+; Combinational ALUT usage for logic          ; 221                                      ;
+;     -- 7 input functions                    ; 3                                        ;
+;     -- 6 input functions                    ; 27                                       ;
+;     -- 5 input functions                    ; 29                                       ;
+;     -- 4 input functions                    ; 4                                        ;
+;     -- <=3 input functions                  ; 158                                      ;
+;                                             ;                                          ;
+; Dedicated logic registers                   ; 145                                      ;
+;                                             ;                                          ;
+; I/O pins                                    ; 140                                      ;
+;                                             ;                                          ;
+; Total DSP Blocks                            ; 0                                        ;
+;                                             ;                                          ;
+; Maximum fan-out node                        ; clock_diviser:CLOCK_DIVISER_INSTANCE|clk ;
+; Maximum fan-out                             ; 72                                       ;
+; Total fan-out                               ; 1372                                     ;
+; Average fan-out                             ; 2.12                                     ;
++---------------------------------------------+------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Resource Utilization by Entity                                                                                                                                                                                                                               ;
++----------------------------------------------+---------------------+---------------------------+-------------------+------------+------+--------------+---------------------------------------------------------------------------------------+--------------------+--------------+
+; Compilation Hierarchy Node                   ; Combinational ALUTs ; Dedicated Logic Registers ; Block Memory Bits ; DSP Blocks ; Pins ; Virtual Pins ; Full Hierarchy Name                                                                   ; Entity Name        ; Library Name ;
++----------------------------------------------+---------------------+---------------------------+-------------------+------------+------+--------------+---------------------------------------------------------------------------------------+--------------------+--------------+
+; |exp6_serial_in_top                          ; 221 (10)            ; 145 (0)                   ; 0                 ; 0          ; 140  ; 0            ; |exp6_serial_in_top                                                                   ; exp6_serial_in_top ; work         ;
+;    |ascii_display:HEX0C_DISPLAY|             ; 33 (33)             ; 0 (0)                     ; 0                 ; 0          ; 0    ; 0            ; |exp6_serial_in_top|ascii_display:HEX0C_DISPLAY                                       ; ascii_display      ; work         ;
+;    |clock_diviser:CLOCK_DIVISER_INSTANCE|    ; 40 (40)             ; 33 (33)                   ; 0                 ; 0          ; 0    ; 0            ; |exp6_serial_in_top|clock_diviser:CLOCK_DIVISER_INSTANCE                              ; clock_diviser      ; work         ;
+;    |serial_in:SERIAL_IN_INSTANCE|            ; 138 (98)            ; 112 (79)                  ; 0                 ; 0          ; 0    ; 0            ; |exp6_serial_in_top|serial_in:SERIAL_IN_INSTANCE                                      ; serial_in          ; work         ;
+;       |clock_diviser:CLOCK_DIVISER_INSTANCE| ; 40 (40)             ; 33 (33)                   ; 0                 ; 0          ; 0    ; 0            ; |exp6_serial_in_top|serial_in:SERIAL_IN_INSTANCE|clock_diviser:CLOCK_DIVISER_INSTANCE ; clock_diviser      ; work         ;
++----------------------------------------------+---------------------+---------------------------+-------------------+------------+------+--------------+---------------------------------------------------------------------------------------+--------------------+--------------+
+Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
+
+
+Encoding Type:  One-Hot
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; State Machine - |exp6_serial_in_top|serial_in:SERIAL_IN_INSTANCE|current_state                                                                                                             ;
++----------------------------+--------------------+-------------------------+----------------------------+---------------------------+----------------------------+--------------------------+
+; Name                       ; current_state.rest ; current_state.wait_done ; current_state.receive_data ; current_state.reset_clock ; current_state.middle_reset ; current_state.wait_start ;
++----------------------------+--------------------+-------------------------+----------------------------+---------------------------+----------------------------+--------------------------+
+; current_state.wait_start   ; 0                  ; 0                       ; 0                          ; 0                         ; 0                          ; 0                        ;
+; current_state.middle_reset ; 0                  ; 0                       ; 0                          ; 0                         ; 1                          ; 1                        ;
+; current_state.reset_clock  ; 0                  ; 0                       ; 0                          ; 1                         ; 0                          ; 1                        ;
+; current_state.receive_data ; 0                  ; 0                       ; 1                          ; 0                         ; 0                          ; 1                        ;
+; current_state.wait_done    ; 0                  ; 1                       ; 0                          ; 0                         ; 0                          ; 1                        ;
+; current_state.rest         ; 1                  ; 0                       ; 0                          ; 0                         ; 0                          ; 1                        ;
++----------------------------+--------------------+-------------------------+----------------------------+---------------------------+----------------------------+--------------------------+
+
+
++---------------------------------------------------------------------------------------------------------+
+; User-Specified and Inferred Latches                                                                     ;
++----------------------------------------------------------+---------------------+------------------------+
+; Latch Name                                               ; Latch Enable Signal ; Free of Timing Hazards ;
++----------------------------------------------------------+---------------------+------------------------+
+; parallel_data_latch[7]                                   ; Equal0              ; yes                    ;
+; parallel_data_latch[6]                                   ; Equal0              ; yes                    ;
+; parallel_data_latch[5]                                   ; Equal0              ; yes                    ;
+; parallel_data_latch[0]                                   ; Equal0              ; yes                    ;
+; parallel_data_latch[1]                                   ; Equal0              ; yes                    ;
+; parallel_data_latch[2]                                   ; Equal0              ; yes                    ;
+; parallel_data_latch[4]                                   ; Equal0              ; yes                    ;
+; parallel_data_latch[3]                                   ; Equal0              ; yes                    ;
+; serial_in:SERIAL_IN_INSTANCE|next_state.wait_done_864    ; GND                 ; yes                    ;
+; serial_in:SERIAL_IN_INSTANCE|next_state.rest_851         ; GND                 ; yes                    ;
+; serial_in:SERIAL_IN_INSTANCE|next_state.middle_reset_903 ; GND                 ; yes                    ;
+; serial_in:SERIAL_IN_INSTANCE|next_state.reset_clock_890  ; GND                 ; yes                    ;
+; serial_in:SERIAL_IN_INSTANCE|next_state.receive_data_877 ; GND                 ; yes                    ;
+; serial_in:SERIAL_IN_INSTANCE|next_state.wait_start_916   ; GND                 ; yes                    ;
+; Number of user-specified and inferred latches = 14       ;                     ;                        ;
++----------------------------------------------------------+---------------------+------------------------+
+Note: All latches listed above may not be present at the end of synthesis due to various synthesis optimizations.
+
+
++------------------------------------------------------+
+; General Register Statistics                          ;
++----------------------------------------------+-------+
+; Statistic                                    ; Value ;
++----------------------------------------------+-------+
+; Total registers                              ; 145   ;
+; Number of registers using Synchronous Clear  ; 96    ;
+; Number of registers using Synchronous Load   ; 0     ;
+; Number of registers using Asynchronous Clear ; 80    ;
+; Number of registers using Asynchronous Load  ; 0     ;
+; Number of registers using Clock Enable       ; 73    ;
+; Number of registers using Preset             ; 0     ;
++----------------------------------------------+-------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Multiplexer Restructuring Statistics (Restructuring Performed)                                                                                                                      ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-----------------------------------------------------------------------+
+; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output                                            ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-----------------------------------------------------------------------+
+; 5:1                ; 2 bits    ; 6 LEs         ; 6 LEs                ; 0 LEs                  ; No         ; |exp6_serial_in_top|serial_in:SERIAL_IN_INSTANCE|next_state.wait_done ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-----------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: clock_diviser:CLOCK_DIVISER_INSTANCE ;
++----------------+-------+----------------------------------------------------------+
+; Parameter Name ; Value ; Type                                                     ;
++----------------+-------+----------------------------------------------------------+
+; clock_mul      ; 1301  ; Signed Integer                                           ;
++----------------+-------+----------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++---------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: serial_in:SERIAL_IN_INSTANCE ;
++----------------+-------+--------------------------------------------------+
+; Parameter Name ; Value ; Type                                             ;
++----------------+-------+--------------------------------------------------+
+; polarity       ; true  ; Enumerated                                       ;
+; width          ; 8     ; Signed Integer                                   ;
+; parity         ; 1     ; Signed Integer                                   ;
+; clock_mul      ; 4     ; Signed Integer                                   ;
++----------------+-------+--------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++----------------------------------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: serial_in:SERIAL_IN_INSTANCE|clock_diviser:CLOCK_DIVISER_INSTANCE ;
++----------------+-------+---------------------------------------------------------------------------------------+
+; Parameter Name ; Value ; Type                                                                                  ;
++----------------+-------+---------------------------------------------------------------------------------------+
+; clock_mul      ; 1     ; Signed Integer                                                                        ;
++----------------+-------+---------------------------------------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++--------------------------------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: serial_in:SERIAL_IN_INSTANCE|bit_reverser:BIT_REVERSER_INSTANCE ;
++----------------+-------+-------------------------------------------------------------------------------------+
+; Parameter Name ; Value ; Type                                                                                ;
++----------------+-------+-------------------------------------------------------------------------------------+
+; width          ; 8     ; Signed Integer                                                                      ;
++----------------+-------+-------------------------------------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++----------------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "serial_in:SERIAL_IN_INSTANCE"                                                             ;
++------------+--------+----------+-------------------------------------------------------------------------------------+
+; Port       ; Type   ; Severity ; Details                                                                             ;
++------------+--------+----------+-------------------------------------------------------------------------------------+
+; parity_bit ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
++------------+--------+----------+-------------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------+
+; Port Connectivity Checks: "clock_diviser:CLOCK_DIVISER_INSTANCE" ;
++-------+-------+----------+---------------------------------------+
+; Port  ; Type  ; Severity ; Details                               ;
++-------+-------+----------+---------------------------------------+
+; i_rst ; Input ; Info     ; Stuck at GND                          ;
++-------+-------+----------+---------------------------------------+
+
+
++-----------------------------------------------------+
+; Post-Synthesis Netlist Statistics for Top Partition ;
++-----------------------+-----------------------------+
+; Type                  ; Count                       ;
++-----------------------+-----------------------------+
+; arriav_ff             ; 145                         ;
+;     CLR               ; 7                           ;
+;     CLR SCLR          ; 32                          ;
+;     ENA CLR           ; 41                          ;
+;     ENA SCLR          ; 32                          ;
+;     SCLR              ; 32                          ;
+;     plain             ; 1                           ;
+; arriav_lcell_comb     ; 223                         ;
+;     arith             ; 127                         ;
+;         1 data inputs ; 126                         ;
+;         2 data inputs ; 1                           ;
+;     extend            ; 3                           ;
+;         7 data inputs ; 3                           ;
+;     normal            ; 93                          ;
+;         0 data inputs ; 2                           ;
+;         1 data inputs ; 2                           ;
+;         2 data inputs ; 9                           ;
+;         3 data inputs ; 20                          ;
+;         4 data inputs ; 4                           ;
+;         5 data inputs ; 29                          ;
+;         6 data inputs ; 27                          ;
+; boundary_port         ; 140                         ;
+;                       ;                             ;
+; Max LUT depth         ; 4.10                        ;
+; Average LUT depth     ; 3.07                        ;
++-----------------------+-----------------------------+
+
+
++-------------------------------+
+; Elapsed Time Per Partition    ;
++----------------+--------------+
+; Partition Name ; Elapsed Time ;
++----------------+--------------+
+; Top            ; 00:00:00     ;
++----------------+--------------+
+
+
++-------------------------------+
+; Analysis & Synthesis Messages ;
++-------------------------------+
+Info: *******************************************************************
+Info: Running Quartus Prime Analysis & Synthesis
+    Info: Version 20.1.1 Build 720 11/11/2020 SJ Lite Edition
+    Info: Processing started: Tue Apr 16 17:40:10 2024
+Info: Command: quartus_map --read_settings_files=on --write_settings_files=off exp1_b_codificador -c exp1_b_codificador
+Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
+Info (20030): Parallel compilation is enabled and will use 4 of the 4 processors detected
+Info (12021): Found 4 design units, including 2 entities, in source file src/serial_in.vhd
+    Info (12022): Found design unit 1: serial_in-arch File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 17
+    Info (12022): Found design unit 2: bit_reverser-arch File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 150
+    Info (12023): Found entity 1: serial_in File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 4
+    Info (12023): Found entity 2: bit_reverser File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 140
+Info (12021): Found 2 design units, including 1 entities, in source file src/hex2seg.vhd
+    Info (12022): Found design unit 1: hex2seg-comportamental File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/hex2seg.vhd Line: 15
+    Info (12023): Found entity 1: hex2seg File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/hex2seg.vhd Line: 7
+Info (12021): Found 2 design units, including 1 entities, in source file src/clock_divider.vhd
+    Info (12022): Found design unit 1: clock_diviser-rtl File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/clock_divider.vhd Line: 19
+    Info (12023): Found entity 1: clock_diviser File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/clock_divider.vhd Line: 6
+Info (12021): Found 2 design units, including 1 entities, in source file src/ascii_display.vhd
+    Info (12022): Found design unit 1: ascii_display-comb File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/ascii_display.vhd Line: 15
+    Info (12023): Found entity 1: ascii_display File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/ascii_display.vhd Line: 8
+Info (12021): Found 2 design units, including 1 entities, in source file exp6_serial_in.vhd
+    Info (12022): Found design unit 1: exp6_serial_in_top-arch File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 19
+    Info (12023): Found entity 1: exp6_serial_in_top File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 2
+Info (12127): Elaborating entity "exp6_serial_in_top" for the top level hierarchy
+Warning (10541): VHDL Signal Declaration warning at exp6_serial_in.vhd(7): used implicit default value for signal "GPIO_1" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations. File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+Warning (10036): Verilog HDL or VHDL warning at exp6_serial_in.vhd(70): object "parity_bit" assigned a value but never read File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 70
+Info (10041): Inferred latch for "parallel_data_latch[0]" at exp6_serial_in.vhd(110) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+Info (10041): Inferred latch for "parallel_data_latch[1]" at exp6_serial_in.vhd(110) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+Info (10041): Inferred latch for "parallel_data_latch[2]" at exp6_serial_in.vhd(110) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+Info (10041): Inferred latch for "parallel_data_latch[3]" at exp6_serial_in.vhd(110) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+Info (10041): Inferred latch for "parallel_data_latch[4]" at exp6_serial_in.vhd(110) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+Info (10041): Inferred latch for "parallel_data_latch[5]" at exp6_serial_in.vhd(110) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+Info (10041): Inferred latch for "parallel_data_latch[6]" at exp6_serial_in.vhd(110) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+Info (10041): Inferred latch for "parallel_data_latch[7]" at exp6_serial_in.vhd(110) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+Info (12128): Elaborating entity "clock_diviser" for hierarchy "clock_diviser:CLOCK_DIVISER_INSTANCE" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 84
+Warning (10492): VHDL Process Statement warning at clock_divider.vhd(25): signal "i_rst" is read inside the Process Statement but isn't in the Process Statement's sensitivity list File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/clock_divider.vhd Line: 25
+Info (12128): Elaborating entity "serial_in" for hierarchy "serial_in:SERIAL_IN_INSTANCE" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 97
+Info (10041): Inferred latch for "next_state.rest" at serial_in.vhd(100) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 100
+Info (10041): Inferred latch for "next_state.wait_done" at serial_in.vhd(100) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 100
+Info (10041): Inferred latch for "next_state.receive_data" at serial_in.vhd(100) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 100
+Info (10041): Inferred latch for "next_state.reset_clock" at serial_in.vhd(100) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 100
+Info (10041): Inferred latch for "next_state.middle_reset" at serial_in.vhd(100) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 100
+Info (10041): Inferred latch for "next_state.wait_start" at serial_in.vhd(100) File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 100
+Info (12128): Elaborating entity "clock_diviser" for hierarchy "serial_in:SERIAL_IN_INSTANCE|clock_diviser:CLOCK_DIVISER_INSTANCE" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 60
+Warning (10492): VHDL Process Statement warning at clock_divider.vhd(25): signal "i_rst" is read inside the Process Statement but isn't in the Process Statement's sensitivity list File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/clock_divider.vhd Line: 25
+Info (12128): Elaborating entity "bit_reverser" for hierarchy "serial_in:SERIAL_IN_INSTANCE|bit_reverser:BIT_REVERSER_INSTANCE" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 73
+Info (12128): Elaborating entity "ascii_display" for hierarchy "ascii_display:HEX0C_DISPLAY" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 116
+Warning (13012): Latch parallel_data_latch[7] has unsafe behavior File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal serial_in:SERIAL_IN_INSTANCE|data[1] File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 121
+Warning (13012): Latch parallel_data_latch[6] has unsafe behavior File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal serial_in:SERIAL_IN_INSTANCE|data[2] File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 121
+Warning (13012): Latch parallel_data_latch[5] has unsafe behavior File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal serial_in:SERIAL_IN_INSTANCE|data[3] File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 121
+Warning (13012): Latch parallel_data_latch[0] has unsafe behavior File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal serial_in:SERIAL_IN_INSTANCE|data[8] File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 121
+Warning (13012): Latch parallel_data_latch[1] has unsafe behavior File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal serial_in:SERIAL_IN_INSTANCE|data[7] File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 121
+Warning (13012): Latch parallel_data_latch[2] has unsafe behavior File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal serial_in:SERIAL_IN_INSTANCE|data[6] File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 121
+Warning (13012): Latch parallel_data_latch[4] has unsafe behavior File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal serial_in:SERIAL_IN_INSTANCE|data[4] File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 121
+Warning (13012): Latch parallel_data_latch[3] has unsafe behavior File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 110
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal serial_in:SERIAL_IN_INSTANCE|data[5] File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/src/serial_in.vhd Line: 121
+Warning (13024): Output pins are stuck at VCC or GND
+    Warning (13410): Pin "GPIO_1[0]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[1]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[2]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[3]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[4]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[5]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[6]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[7]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[8]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[9]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[10]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[11]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[12]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[13]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[14]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[15]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[16]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[17]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[18]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[19]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[20]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[21]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[22]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[23]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[24]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[25]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[26]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[27]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[28]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[29]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[30]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[31]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[32]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[33]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[34]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "GPIO_1[35]" is stuck at GND File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 7
+    Warning (13410): Pin "HEX1[0]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 11
+    Warning (13410): Pin "HEX1[1]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 11
+    Warning (13410): Pin "HEX1[2]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 11
+    Warning (13410): Pin "HEX1[3]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 11
+    Warning (13410): Pin "HEX1[4]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 11
+    Warning (13410): Pin "HEX1[5]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 11
+    Warning (13410): Pin "HEX1[6]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 11
+    Warning (13410): Pin "HEX2[0]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 12
+    Warning (13410): Pin "HEX2[1]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 12
+    Warning (13410): Pin "HEX2[2]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 12
+    Warning (13410): Pin "HEX2[3]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 12
+    Warning (13410): Pin "HEX2[4]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 12
+    Warning (13410): Pin "HEX2[5]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 12
+    Warning (13410): Pin "HEX2[6]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 12
+    Warning (13410): Pin "HEX3[0]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 13
+    Warning (13410): Pin "HEX3[1]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 13
+    Warning (13410): Pin "HEX3[2]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 13
+    Warning (13410): Pin "HEX3[3]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 13
+    Warning (13410): Pin "HEX3[4]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 13
+    Warning (13410): Pin "HEX3[5]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 13
+    Warning (13410): Pin "HEX3[6]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 13
+    Warning (13410): Pin "HEX4[0]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 14
+    Warning (13410): Pin "HEX4[1]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 14
+    Warning (13410): Pin "HEX4[2]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 14
+    Warning (13410): Pin "HEX4[3]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 14
+    Warning (13410): Pin "HEX4[4]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 14
+    Warning (13410): Pin "HEX4[5]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 14
+    Warning (13410): Pin "HEX4[6]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 14
+    Warning (13410): Pin "HEX5[0]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 15
+    Warning (13410): Pin "HEX5[1]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 15
+    Warning (13410): Pin "HEX5[2]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 15
+    Warning (13410): Pin "HEX5[3]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 15
+    Warning (13410): Pin "HEX5[4]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 15
+    Warning (13410): Pin "HEX5[5]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 15
+    Warning (13410): Pin "HEX5[6]" is stuck at VCC File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 15
+Info (286030): Timing-Driven Synthesis is running
+Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
+    Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
+Warning (21074): Design contains 47 input pin(s) that do not drive logic
+    Warning (15610): No output dependent on input pin "SW[0]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "SW[1]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "SW[2]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "SW[3]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "SW[4]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "SW[5]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "SW[6]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "SW[7]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "SW[8]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "SW[9]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 4
+    Warning (15610): No output dependent on input pin "GPIO_0[3]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[4]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[5]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[6]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[7]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[8]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[9]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[10]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[11]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[12]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[13]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[14]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[15]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[16]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[17]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[18]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[19]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[20]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[21]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[22]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[23]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[24]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[25]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[26]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[27]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[28]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[29]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[30]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[31]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[32]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[33]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[34]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "GPIO_0[35]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 6
+    Warning (15610): No output dependent on input pin "KEY[0]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 8
+    Warning (15610): No output dependent on input pin "KEY[1]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 8
+    Warning (15610): No output dependent on input pin "KEY[2]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 8
+    Warning (15610): No output dependent on input pin "KEY[3]" File: C:/Users/Operador/3D Objects/experiencia1 (1)/exp1_b_codificador_restored/exp6_serial_in.vhd Line: 8
+Info (21057): Implemented 375 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 51 input pins
+    Info (21059): Implemented 89 output pins
+    Info (21061): Implemented 235 logic cells
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 141 warnings
+    Info: Peak virtual memory: 4847 megabytes
+    Info: Processing ended: Tue Apr 16 17:40:22 2024
+    Info: Elapsed time: 00:00:12
+    Info: Total CPU time (on all processors): 00:00:30
+
+

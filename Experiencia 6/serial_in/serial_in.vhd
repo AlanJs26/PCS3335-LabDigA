@@ -1,189 +1,158 @@
-library ieee;
-use ieee.numeric_bit.all;
+LIBRARY ieee;
+USE ieee.numeric_bit.ALL;
 
-entity serial_in is
-  generic (
-    POLARITY : boolean := TRUE;
-    WIDTH : natural := 8;
-    PARITY : natural := 1;
-    CLOCK_MUL : positive := 4
-  );
-  port (
-    clock, reset, start, serial_data : in bit;
-    done, parity_bit : out bit;
-    parallel_data : out bit_vector(WIDTH - 1 downto 0)
-  );
-end serial_in;
-architecture arch of serial_in is
-
-  component clock_diviser is
-    generic (
-      INPUT_CLOCK : integer; 
-      TARGET_CLOCK : integer
+ENTITY serial_in IS
+    GENERIC (
+        POLARITY : BOOLEAN := TRUE;
+        WIDTH : NATURAL := 8;
+        PARITY : NATURAL := 1;
+        CLOCK_MUL : POSITIVE := 4
     );
-    port (
-      i_clk : in bit;
-      i_rst : in bit;
-      o_clk_div : out bit
+    PORT (
+        clock, reset, start, serial_data : IN BIT;
+        done, parity_bit : OUT BIT;
+        parallel_data : OUT bit_vector(WIDTH - 1 DOWNTO 0)
     );
-  end component;
+END serial_in;
+ARCHITECTURE arch OF serial_in IS
 
-  component bit_reverser is
-    generic (
-      WIDTH : positive
+    COMPONENT clock_diviser IS
+        GENERIC (
+            -- INPUT_CLOCK : INTEGER;
+            -- TARGET_CLOCK : INTEGER
+            CLOCK_MUL : INTEGER
+        );
+        PORT (
+            i_clk : IN BIT;
+            i_rst : IN BIT;
+            o_clk_div : OUT BIT
+        );
+    END COMPONENT;
+
+    COMPONENT bit_reverser IS
+        GENERIC (
+            WIDTH : POSITIVE
+        );
+        PORT (
+            i_data : IN bit_vector(WIDTH - 1 DOWNTO 0);
+            o_data : OUT bit_vector(WIDTH - 1 DOWNTO 0)
+        );
+    END COMPONENT;
+
+    TYPE state_t IS (wait_start, middle_reset, reset_clock, receive_data, wait_done, rest);
+    SIGNAL next_state, current_state : state_t;
+
+    SIGNAL clock_div, clock_div_rst : BIT;
+    SIGNAL data : bit_vector(WIDTH DOWNTO 0);
+    SIGNAL data_counter : INTEGER := 0;
+
+    SIGNAL reverse_data : bit_vector(WIDTH - 1 DOWNTO 0);
+
+    SIGNAL serial_data_p : BIT;
+
+    SIGNAL middle_counter : INTEGER := 0;
+
+BEGIN
+
+    serial_data_p <= serial_data WHEN POLARITY = true ELSE
+        NOT serial_data;
+
+    CLOCK_DIVISER_INSTANCE : clock_diviser
+    GENERIC MAP(
+        -- INPUT_CLOCK => 50000000,
+        -- INPUT_CLOCK => 4800 * 4,
+        -- TARGET_CLOCK => 4800
+        CLOCK_MUL => 1
+        -- TARGET_CLOCK => 50000000/4
+        -- TARGET_CLOCK => 4800*CLOCK_MUL
+    )
+    PORT MAP(
+        clock, clock_div_rst, clock_div
     );
-    port (
-      i_data : in bit_vector(WIDTH-1 downto 0);
-      o_data : out bit_vector(WIDTH-1 downto 0)
+
+    BIT_REVERSER_INSTANCE : bit_reverser
+    GENERIC MAP(
+        WIDTH => WIDTH
+    )
+    PORT MAP(
+        data(WIDTH DOWNTO 1), reverse_data
     );
-  end component;
 
-  type state_t is (wait_start, reset_clock, receive_data, rest);
-  signal next_state, current_state : state_t;
+    STATES_PROCESS : PROCESS (clock, reset, start)
+    BEGIN
 
-  signal clock_div, clock_div_rst : bit;
-  signal data : bit_vector(WIDTH downto 0);
-  signal data_counter : integer := 0;
+        IF reset = '1' THEN
+            current_state <= wait_start;
+        ELSIF (rising_edge(clock)) THEN
 
-  signal reverse_data : bit_vector(WIDTH-1 downto 0);
+            if next_state=reset_clock then
+                middle_counter <= 0;
+            else
+                middle_counter <= middle_counter + 1;
+            end if;
 
-  signal serial_data_p : bit;
+            current_state <= next_state;
+        END IF;
 
-begin
+    END PROCESS;
 
-  serial_data_p <= serial_data when POLARITY=true else not serial_data;
+    -- Logica de proximo estado
+    next_state <=
+        wait_start WHEN current_state = rest AND start = '1' ELSE
+        reset_clock WHEN current_state = wait_start AND serial_data_p = '0' AND start = '1' ELSE
+        middle_reset WHEN current_state = reset_clock ELSE
+        receive_data WHEN current_state = middle_reset  AND middle_counter >= 0 ELSE
+        wait_done WHEN (current_state = receive_data AND data_counter >= WIDTH + 1) ELSE
+        rest WHEN current_state = wait_done ELSE
+        next_state;
 
-  CLOCK_DIVISER_INSTANCE : clock_diviser 
-  generic map(
-      -- INPUT_CLOCK => 50000000,
-      INPUT_CLOCK => 4800*4,
-      TARGET_CLOCK => 4800
-      -- TARGET_CLOCK => 50000000/4
-      -- TARGET_CLOCK => 4800*CLOCK_MUL
-  )
-  port map(
-      clock, clock_div_rst, clock_div
-  );
+    clock_div_rst <= '1' WHEN current_state = reset_clock or current_state = middle_reset ELSE
+        '0';
 
-  BIT_REVERSER_INSTANCE : bit_reverser 
-  generic map(
-      WIDTH => WIDTH
-  )
-  port map(
-      data(WIDTH downto 1), reverse_data
-  );
+    parity_bit <= data(0) WHEN PARITY = 1 ELSE
+        NOT data(0);
 
-  STATES_PROCESS : process (clock, reset, start)
-  begin
+    parallel_data <= reverse_data;
+    done <= '1' WHEN current_state = rest OR data_counter >= WIDTH + 2 or current_state = wait_done ELSE
+        '0';
 
-    if reset = '1' then
-      current_state <= wait_start;
-    elsif (rising_edge(clock)) then
-      current_state <= next_state;
-    end if;
-    
-  end process;
+    MAIN_PROCESS : PROCESS (clock_div, clock_div_rst, reset)
+    BEGIN
+        IF reset = '1' THEN
+            data_counter <= 0;
+        ELSIF clock_div_rst = '1' THEN
+            data_counter <= 0;
+            data <= (OTHERS => '0');
+        ELSIF rising_edge(clock_div) THEN
+            IF current_state = receive_data then
+                data_counter <= data_counter + 1;
 
-  -- Logica de proximo estado
-  next_state <=
-    wait_start when current_state=rest and start='1' else
-    reset_clock when current_state=wait_start and serial_data_p='0' and start='1' else
-    receive_data when current_state=reset_clock else
-    rest when (current_state=receive_data and data_counter>=WIDTH+2) else
-    next_state;
+                FOR i IN WIDTH DOWNTO 1 LOOP
+                    data(i) <= data(i - 1);
+                END LOOP;
+                data(0) <= serial_data_p;
 
-  clock_div_rst <= '1' when current_state=reset_clock else '0';
+            END IF;
+        END IF;
+    END PROCESS;
+END ARCHITECTURE;
 
-  parity_bit <= data(0) when PARITY=1 else not data(0);
+ENTITY bit_reverser IS
+    GENERIC (
+        WIDTH : POSITIVE
+    );
+    PORT (
+        i_data : IN bit_vector(WIDTH - 1 DOWNTO 0);
+        o_data : OUT bit_vector(WIDTH - 1 DOWNTO 0)
+    );
+END ENTITY bit_reverser;
 
-  parallel_data <= reverse_data;
-
-  
-  done <= '1' when current_state=rest or data_counter>=WIDTH+2 else '0';
-
-  MAIN_PROCESS : process (clock_div, clock_div_rst, reset)
-  begin
-    if reset = '1' then
-      data_counter <= 0;
-    end if;
-
-    if rising_edge(clock_div_rst) then
-      data_counter <= 0;
-      data <= (others=>'0');
-    elsif rising_edge(clock_div) then
-            
-      if current_state=receive_data then
-        data_counter <= data_counter + 1;
-
-        for i in WIDTH downto 1 loop
-          data(i) <= data(i-1);
-        end loop;
-        data(0) <= serial_data_p;
-
-      end if;
-
-
-    end if;
-  end process;
-end architecture;
-
-
--- CLOCK DIVISER
-
-library IEEE;
-use IEEE.numeric_bit.all;
-
-entity clock_diviser is
-  generic (
-    INPUT_CLOCK : integer; 
-    TARGET_CLOCK : integer
-  );
-  port (
-    i_clk : in bit;
-    i_rst : in bit;
-    o_clk_div : out bit
-  );
-end clock_diviser;
-
-architecture rtl of clock_diviser is
-  signal clk : bit;
-  signal counter : integer := 0;
-begin
-  p_clk_divider : process (i_clk)
-  begin
-    if i_rst='1' then
-      clk <= '0';
-      counter <= 0;
-    elsif (rising_edge(i_clk)) then
-        counter <= counter + 1;
-
-        if counter=((INPUT_CLOCK/TARGET_CLOCK)-1)/2 then
-            clk <= not clk;
-            counter <= 0;
-        end if;
-    end if;
-  end process p_clk_divider;
-
-  o_clk_div <= clk;
-end rtl;
-
-
-entity bit_reverser is
-  generic (
-    WIDTH : positive
-  );
-  port (
-    i_data : in bit_vector(WIDTH-1 downto 0);
-    o_data : out bit_vector(WIDTH-1 downto 0)
-  );
-end entity bit_reverser;
-
-architecture arch of bit_reverser is
-begin
-  process(i_data)
-  begin
-    for i in 0 to WIDTH-1 loop
-      o_data(i) <= i_data(WIDTH-1-i);
-    end loop;
-  end process;
-end architecture;
+ARCHITECTURE arch OF bit_reverser IS
+BEGIN
+    PROCESS (i_data)
+    BEGIN
+        FOR i IN 0 TO WIDTH - 1 LOOP
+            o_data(i) <= i_data(WIDTH - 1 - i);
+        END LOOP;
+    END PROCESS;
+END ARCHITECTURE;

@@ -1,7 +1,7 @@
 library ieee;
 use ieee.numeric_bit.all;
 
-entity serial_out is
+entity serial_out_entity is
     generic (
         POLARITY : BOOLEAN := TRUE;
         WIDTH : NATURAL := 7;
@@ -14,9 +14,9 @@ entity serial_out is
         tx_done : out BIT;
         serial_o : out BIT
     );
-end serial_out;
+end serial_out_entity;
 
-architecture serial_out_arch of serial_out is
+architecture serial_out_entity_arch of serial_out_entity is
 
     signal counter : INTEGER := -1;
 
@@ -95,7 +95,7 @@ begin
         end if;
 
     end process;
-end serial_out_arch; -- serial_out_arch
+end serial_out_entity_arch; -- serial_out_entity_arch
 
 
 

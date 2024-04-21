@@ -1,30 +1,26 @@
 library ieee;
 use ieee.numeric_bit.all;
 
-entity serial_in is
+entity serial_in_entity is
   generic (
-    POLARITY : boolean := TRUE;
-    WIDTH : natural := 8;
-    PARITY : natural := 1;
-    CLOCK_MUL : positive := 4
+    POLARITY : boolean;
+    WIDTH : natural;
+    PARITY : natural;
+    CLOCK_MUL : positive
   );
   port (
     clock, reset, start, serial_data : in bit;
     done, parity_bit : out bit;
     parallel_data : out bit_vector(WIDTH - 1 downto 0)
   );
-end serial_in;
-architecture arch of serial_in is
+end serial_in_entity;
+architecture arch of serial_in_entity is
 
-  component clock_diviser is
-    generic (
-      INPUT_CLOCK : integer; 
-      TARGET_CLOCK : integer
-    );
+  component clock_diviser_2 is
     port (
-      i_clk : in bit;
-      i_rst : in bit;
-      o_clk_div : out bit
+        reset : in bit;
+        clk_in : in bit;
+        clk_out : out bit
     );
   end component;
 
@@ -41,7 +37,7 @@ architecture arch of serial_in is
   type state_t is (wait_start, reset_clock, receive_data, rest);
   signal next_state, current_state : state_t;
 
-  signal clock_div, clock_div_rst : bit;
+  signal clock_div, clock_div_2, clock_div_rst : bit;
   signal data : bit_vector(WIDTH downto 0);
   signal data_counter : integer := 0;
 
@@ -53,16 +49,13 @@ begin
 
   serial_data_p <= serial_data when POLARITY=true else not serial_data;
 
-  CLOCK_DIVISER_INSTANCE : clock_diviser 
-  generic map(
-      -- INPUT_CLOCK => 50000000,
-      INPUT_CLOCK => 4800*4,
-      TARGET_CLOCK => 4800
-      -- TARGET_CLOCK => 50000000/4
-      -- TARGET_CLOCK => 4800*CLOCK_MUL
-  )
+  CLOCK_DIVISER_2_INSTANCE : clock_diviser_2
   port map(
-      clock, clock_div_rst, clock_div
+      clock_div_rst, clock, clock_div_2
+  );
+  CLOCK_DIVISER_4_INSTANCE : clock_diviser_2
+  port map(
+      clock_div_rst, clock_div_2, clock_div
   );
 
   BIT_REVERSER_INSTANCE : bit_reverser 

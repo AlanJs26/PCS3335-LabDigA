@@ -1,9 +1,0 @@
-
-State Machine - |exp6_serial_in_top|serial_in:SERIAL_IN_INSTANCE|current_state
-Name current_state.rest current_state.wait_done current_state.receive_data current_state.reset_clock current_state.middle_reset current_state.wait_start 
-current_state.wait_start 0 0 0 0 0 0 
-current_state.middle_reset 0 0 0 0 1 1 
-current_state.reset_clock 0 0 0 1 0 1 
-current_state.receive_data 0 0 1 0 0 1 
-current_state.wait_done 0 1 0 0 0 1 
-current_state.rest 1 0 0 0 0 1 

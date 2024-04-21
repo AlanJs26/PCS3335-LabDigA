@@ -1,40 +1,25 @@
--- CLOCK DIVISER
-
-library IEEE;
-use IEEE.numeric_bit.all;
-
-entity clock_diviser is
-  generic (
-    -- INPUT_CLOCK : integer; 
-    -- TARGET_CLOCK : integer
-    CLOCK_MUL : integer
-  );
+-- This module is for a basic divide by 2 in VHDL.
+entity clock_diviser_2 is
   port (
-    i_clk : in bit;
-    i_rst : in bit;
-    o_clk_div : out bit
+    reset : in bit;
+    clk_in : in bit;
+    clk_out : out bit
   );
-end clock_diviser;
+end clock_diviser_2;
 
-architecture rtl of clock_diviser is
-  signal clk : bit;
-  signal counter : integer := 0;
+architecture div2_arch of clock_diviser_2 is
+  signal clk_state : bit;
+
 begin
-  p_clk_divider : process (i_clk)
+  process (clk_in, reset)
   begin
-    if i_rst='1' then
-      clk <= '0';
-      counter <= 0;
-    elsif (rising_edge(i_clk)) then
-        counter <= counter + 1;
-
-        if counter=CLOCK_MUL then
-        -- if counter=((INPUT_CLOCK/TARGET_CLOCK)-1)/2 then
-            clk <= not clk;
-            counter <= 0;
-        end if;
+    if reset = '1' then
+      clk_state <= '0';
+    elsif clk_in'event and clk_in = '1' then
+      clk_state <= not clk_state;
     end if;
-  end process p_clk_divider;
+  end process;
 
-  o_clk_div <= clk;
-end rtl;
+  clk_out <= clk_state;
+
+end div2_arch;

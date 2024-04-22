@@ -40,14 +40,21 @@ begin
         wait until rising_edge(clock12_5M);
         serial_in <= '1'; --D0
         wait until rising_edge(clock12_5M);
-        serial_in <= '0'; --D1
+        serial_in <= '1'; --D1
         wait until rising_edge(clock12_5M); --D2
+        serial_in <= '0'; --D2
         wait until rising_edge(clock12_5M); --D3
+        serial_in <= '0'; --D3
         wait until rising_edge(clock12_5M); --D4
+        serial_in <= '0'; --D4
         wait until rising_edge(clock12_5M); --D5
+        serial_in <= '1'; --D5
         wait until rising_edge(clock12_5M); --D6
+        serial_in <= '1'; --D6
         wait until rising_edge(clock12_5M); --D7
+        serial_in <= '1'; --D7
         wait until rising_edge(clock12_5M); --Paridade
+        serial_in <= '0'; --Paridade
         wait until rising_edge(clock12_5M);
         serial_in <= '1'; --Stop bit 1
         wait until rising_edge(clock12_5M); --Stopbit

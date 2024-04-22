@@ -13,7 +13,7 @@ architecture sha256_1b_arch of sha256_1b is
     ---------------------------------------- MARK: Serial In --------------------------------------------------  
     constant POLARITY : boolean := TRUE;
     constant WIDTH : natural := 8;
-    constant PARITY : natural := 1;
+    constant PARITY : natural := 0;
     constant CLOCK_MUL : positive := 4;
     constant STOP_BITS : natural := 2;
     
@@ -159,7 +159,7 @@ begin
 
     -- Logica de proximo estado
     next_state <=
-        wait_start when current_state = enviando and done_serial_out = '1' else
+        wait_start when (current_state = enviando and done_serial_out = '1') or (current_state = calculando and serial_in = '0') else
         recebendo when current_state = wait_start and serial_in = '0' else
         calculando when current_state = recebendo and done_serial_in='1' else
         enviando when current_state = calculando and done_multisteps='1' else --se der merda, pode ser aqui no done kkkk (precisa ser sempre 1, nao verificamos isso)

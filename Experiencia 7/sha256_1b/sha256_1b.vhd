@@ -5,7 +5,8 @@ entity sha256_1b is
     port (
         clock, reset : in bit;
         serial_in : in bit;
-        serial_out : out bit
+        serial_out : out bit;
+        haso_sha256 : out bit_vector(255 downto 0)
     );
 end sha256_1b;
 
@@ -134,7 +135,7 @@ begin
     port map (
         clock_div_4, reset_serial_out, tx_go,
         done_serial_out,
-        haso(WIDTH-1 downto 0),
+        haso(WIDTH-1+8 downto 0+8),
         serial_data_out
     );
 
@@ -180,5 +181,7 @@ begin
         msgi((i+1)*7+i downto i*7+i) <= reversed_parallel_data;
     end GENERATE;
     ---------------------------------------- SINAIS DE CONTROLE -----------------------------------------------
+
+    haso_sha256 <= haso;
 
 end architecture;

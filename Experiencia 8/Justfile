@@ -18,4 +18,4 @@ wave:
 	pgrep gtkwave||gtkwave wave.$EXTENSION --autosavename --saveonexit&
 
 clean:
-	rm -f wave.{fst,vcd,gtkw} work -r
+	rm -f wave.{fst,vcd} work -r

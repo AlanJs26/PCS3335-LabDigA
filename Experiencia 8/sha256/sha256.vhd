@@ -14,7 +14,7 @@ architecture sha256_arch of sha256 is
     constant POLARITY : boolean := TRUE;
     constant SERIAL_IN_WIDTH : natural := 8;
     constant SERIAL_OUT_WIDTH : natural := 8;
-    constant PARITY : natural := 0;
+    constant PARITY : natural := 1;
     constant CLOCK_MUL : positive := 4;
     constant STOP_BITS : natural := 2;
     constant INPUT_WORDS : natural := 64;
@@ -30,12 +30,12 @@ architecture sha256_arch of sha256 is
         );
         port (
             clock, reset, start, serial_data : in bit;
-            done, parity_bit : out bit;
+            done, parity_bit, parity_calculado : out bit;
             parallel_data : out bit_vector(SERIAL_IN_WIDTH - 1 downto 0)
         );
     end component;
 
-    signal reset_serial_in, start, serial_data_in, done_serial_in, parity_bit : bit;
+    signal reset_serial_in, start, serial_data_in, done_serial_in, parity_bit, parity_calculado : bit;
     signal parallel_data : bit_vector(SERIAL_IN_WIDTH - 1 downto 0);
     ---------------------------------------- MARK: Serial Out ------------------------------------------------- 
     component serial_out_entity is
@@ -121,14 +121,14 @@ begin
     ---------------------------------------- MARK: Port Maps e Signals ---------------------------------------- 
     SERIAL_IN_INSTANCE : serial_in_entity
     generic map(
-        POLARITY => POLARITY,
+        POLARITY => FALSE,
         WIDTH => SERIAL_IN_WIDTH,
         PARITY => PARITY,
         CLOCK_MUL => CLOCK_MUL
     )
     port map(
         clock, reset_serial_in, start, serial_data_in,
-        done_serial_in, parity_bit,
+        done_serial_in, parity_bit, parity_calculado,
         parallel_data
     );
 
@@ -150,13 +150,13 @@ begin
     generic map (
         POLARITY => POLARITY,
         WIDTH => SERIAL_OUT_WIDTH,
-        PARITY => PARITY,
+        PARITY => 0,
         STOP_BITS => STOP_BITS
     )
     port map (
         clock_div_4, reset_serial_out, tx_go,
         done_serial_out,
-        not haso(SERIAL_OUT_WIDTH*(((OUTPUT_WORDS-1)-send_counter)+1)-1 downto ((OUTPUT_WORDS-1)-send_counter)*SERIAL_OUT_WIDTH),
+        haso(SERIAL_OUT_WIDTH*(((OUTPUT_WORDS-1)-send_counter)+1)-1 downto ((OUTPUT_WORDS-1)-send_counter)*SERIAL_OUT_WIDTH),
         serial_data_out
     );
 
@@ -202,8 +202,8 @@ begin
         wait_start when (current_state = enviando and done_serial_out = '1' and send_counter >= OUTPUT_WORDS) or (current_state = calculando and serial_in = '0') else
         recebendo when current_state = wait_start and serial_in = '0' else
         calculando when current_state = recebendo and done_serial_in='1' else
-        enviando when current_state = calculando and done_multisteps='1' else --se der merda, pode ser aqui no done kkkk (precisa ser sempre 1, nao verificamos isso)
-        next_state;
+        enviando when current_state = calculando and done_multisteps='1' else
+        current_state;
         
     ---------------------------------------- MARK: SINAIS DE CONTROLE -----------------------------------------
     start <= '0' when reset='1' else '1';
@@ -212,8 +212,8 @@ begin
     serial_out <= serial_data_out;
     serial_data_in <= serial_in;
 
-    data_in_register <= reversed_parallel_data;
-    enable_register <= '1' when done_serial_in else '0';
+    data_in_register <= not reversed_parallel_data;
+    enable_register <= '1' when done_serial_in = '1' and parity_calculado = parity_bit else '0';
     reset_register <= reset;
     
     reset_serial_in <= reset;

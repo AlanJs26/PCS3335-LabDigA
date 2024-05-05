@@ -3,14 +3,14 @@ use IEEE.numeric_bit.all;
 
 entity serial_in_entity is
     generic (
-        polarity : boolean := true;
-        width : natural := 8;
-        parity : natural := 1;
-        clock_mul : positive := 4
+        POLARITY : boolean := true;
+        WIDTH : natural := 8;
+        PARITY : natural := 1;
+        CLOCK_MUL : positive := 4
     );
     port (
         clock, reset, start, serial_data : in bit;
-        done, parity_bit : out bit;
+        done, parity_bit, parity_calculado : out bit;
         parallel_data : out bit_vector(width - 1 downto 0)
     );
 end entity;
@@ -44,6 +44,18 @@ architecture libarch of serial_in_entity is
             count : out bit_vector(width - 1 downto 0)
         );
     end component;
+
+    component parity_def is
+        generic (
+            POLARITY : BOOLEAN;
+            WIDTH : NATURAL;
+            PARITY : NATURAL
+        );
+        port (
+            data : in bit_vector(WIDTH - 1 downto 0);
+            q : out bit
+        );
+    end component;
 begin
     counter1 : counter4bits
         generic map(width => 16)
@@ -59,6 +71,10 @@ begin
             rst => rstcount1,
             count => count2
         );
+
+    PARITY_DEF_INSTANCE : parity_def 
+        generic map(POLARITY => POLARITY, WIDTH => WIDTH, PARITY => PARITY)
+        port map(paralaux(width downto 1), parity_calculado);
 
     clk19200 <= clock;
     transitionflag <= "000001" when reset = '1' else
@@ -98,7 +114,7 @@ begin
     paralaux <= datareg(width downto 0) when (doneaux = '1') else
         paralaux;
 
-    parallel_data <= paralaux(width downto 1);
+    parallel_data <= not paralaux(width downto 1);
     parity_bit <= paralaux(0);
 
 end architecture;

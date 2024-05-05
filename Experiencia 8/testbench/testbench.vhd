@@ -212,8 +212,8 @@ begin
             wait until rising_edge(clock4800);
         end loop;
 
-        wait until falling_edge(serial_out);
-        -- wait until falling_edge(serial_out) for PERIOD19200*100;
+        -- wait until falling_edge(serial_out);
+        wait until falling_edge(serial_out) for PERIOD19200*100;
         wait for PERIOD4800/2; --Middle of the bit
 
         for j in 31 downto 0 loop
@@ -232,6 +232,56 @@ begin
             wait for PERIOD4800/2;
         end loop;
 
+
+
+            
+
+        reset <= '1';
+        serial_in <= '1';
+        wait until rising_edge(clock4800);
+        reset <= '0';
+        wait until rising_edge(clock4800);
+        wait until rising_edge(clock4800);
+        wait until rising_edge(clock4800);
+        wait until rising_edge(clock4800);
+        wait until rising_edge(clock4800);
+        wait until rising_edge(clock4800);
+        wait until rising_edge(clock4800);
+
+        for j in 63 downto 0 loop
+            serial_in <= '0';
+            wait until rising_edge(clock4800);
+            for i in 0 to 7 loop
+                serial_in <= data_in(j)(i);
+                wait until rising_edge(clock4800);
+            end loop;
+            serial_in <= paridade(data_in(j));
+            wait until rising_edge(clock4800);
+            serial_in <= '1';
+            wait until rising_edge(clock4800);
+        end loop;
+
+        -- wait until falling_edge(serial_out);
+        wait until falling_edge(serial_out) for PERIOD19200*100;
+        wait for PERIOD4800/2; --Middle of the bit
+
+        for j in 31 downto 0 loop
+            --report "Inicio palavra de indice " & integer'image(j);
+            assert serial_out = '0' report "StartBit nao detectado" & "Indices (j): (" & integer'image(j) & ")";
+            wait for PERIOD4800;
+            for i in 0 to 7 loop
+                assert serial_out = data_out(j)(i) report "Recebido: " & bit'image(serial_out) & " Esperado: " & bit'image(data_out(j)(i)) & "Indices (j, i): (" & integer'image(j) & ", " & integer'image(i) & ")";
+                wait for PERIOD4800;
+            end loop;
+            assert serial_out = paridade(data_out(j)) report "Paridade";
+            wait for PERIOD4800;
+            assert serial_out = '1' report "STOP Bits";
+            --report "Fim palavra de indice " & integer'image(j);
+            wait until serial_out = '0' for 10*PERIOD4800;
+            wait for PERIOD4800/2;
+        end loop;
+
+        report "this is a message"; -- severity note
         finished <= '1';
         wait;
     end process;

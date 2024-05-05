@@ -4,7 +4,7 @@ entity exp7_sha256_1b_top is
         -- SW : in bit_vector(9 downto 0);
         CLOCK_50 : in bit;
         GPIO_0 : in bit_vector(35 downto 0);
-        GPIO_1 : out bit_vector(35 downto 0);
+        GPIO_1 : out bit_vector(35 downto 0)
         -- KEY : in bit_vector(3 downto 0);
         -- LEDR : out bit_vector(9 downto 0);
         -- HEX0 : out bit_vector(7 downto 0);

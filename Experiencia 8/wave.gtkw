@@ -1,0 +1,42 @@
+[*]
+[*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
+[*] Sun May  5 01:23:58 2024
+[*]
+[dumpfile] "/mnt/DiscoExterno/_Codes/VHDL/Laboratorio Digital A/Experiencia 8/wave.fst"
+[dumpfile_mtime] "Sun May  5 01:15:20 2024"
+[dumpfile_size] 19221
+[savefile] "/mnt/DiscoExterno/_Codes/VHDL/Laboratorio Digital A/Experiencia 8/wave.gtkw"
+[timestart] 100600000000000
+[size] 1916 1014
+[pos] -1 -1
+*-44.209248 148540716000000 160233349500000 157525033500000 162941665500000 157525033500000 165649981500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb.
+[treeopen] tb.sha256_impl.
+[sst_width] 280
+[signals_width] 222
+[sst_expanded] 1
+[sst_vpaned_height] 312
+@28
+tb.clock19200
+tb.clock4800
+@22
+tb.sha256_impl.msgi[511:0]
+@28
+tb.reset
+tb.serial_in
+@22
+tb.sha256_impl.data_out_register[511:0]
+tb.sha256_impl.serial_in_instance.parallel_data[7:0]
+@28
+tb.sha256_impl.done_serial_in
+tb.sha256_impl.shift_register_instance.previous_enable
+tb.serial_out
+@29
+tb.sha256_impl.done_serial_out
+@22
+tb.sha256_impl.multisteps_instance.haso[255:0]
+tb.sha256_impl.send_counter
+@28
+tb.sha256_impl.done_multisteps
+[pattern_trace] 1
+[pattern_trace] 0

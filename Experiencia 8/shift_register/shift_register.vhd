@@ -1,3 +1,6 @@
+library ieee;
+use ieee.numeric_bit.all;
+
 entity shift_register is
     generic (
         WIDTH_IN : natural;
@@ -29,7 +32,6 @@ begin
             else
                 previous_enable <= '0';
             end if;
-        else
         end if;
     end process;
 

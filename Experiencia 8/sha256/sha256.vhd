@@ -5,6 +5,7 @@ entity sha256 is
     port (
         clock, reset : in bit;
         serial_in : in bit;
+        LEDR : out bit_vector(9 downto 0);
         serial_out : out bit
     );
 end sha256;
@@ -54,6 +55,7 @@ architecture sha256_arch of sha256 is
     end component;
 
     signal reset_serial_out, tx_go, done_serial_out, serial_data_out : bit;
+    signal data_serial_out : bit_vector(SERIAL_OUT_WIDTH - 1 downto 0);
     ---------------------------------------- MARK: Multisteps ------------------------------------------------- 
     component multisteps is
         port (
@@ -115,7 +117,7 @@ architecture sha256_arch of sha256 is
     ---------------------------------------- MARK: Sinais -------------------------------------  
     
     signal send_counter : integer := 0;
-
+    signal estou_no_wait_start : bit;
 
 begin
     ---------------------------------------- MARK: Port Maps e Signals ---------------------------------------- 
@@ -156,7 +158,7 @@ begin
     port map (
         clock_div_4, reset_serial_out, tx_go,
         done_serial_out,
-        haso(SERIAL_OUT_WIDTH*(((OUTPUT_WORDS-1)-send_counter)+1)-1 downto ((OUTPUT_WORDS-1)-send_counter)*SERIAL_OUT_WIDTH),
+        data_serial_out,
         serial_data_out
     );
 
@@ -188,23 +190,36 @@ begin
         end if;
     end process;
 
-    SEND_COUNTER_PROCESS : process (done_serial_out, reset)
+    SEND_COUNTER_PROCESS : process (done_serial_out, reset, clock)
     begin
-        if reset = '1' then
+        if reset = '1' or estou_no_wait_start = '1' then
             send_counter <= 0;
-        elsif rising_edge(done_serial_out) and next_state = enviando and send_counter+1 < OUTPUT_WORDS then
+        elsif rising_edge(done_serial_out) and next_state = enviando then
             send_counter <= send_counter + 1;
         end if;        
     end process;
 
     -- Logica de proximo estado
     next_state <=
-        wait_start when (current_state = enviando and done_serial_out = '1' and send_counter >= OUTPUT_WORDS) or (current_state = calculando and serial_in = '0') else
-        recebendo when current_state = wait_start and serial_in = '0' else
+        wait_start when (send_counter >= OUTPUT_WORDS) or (current_state = calculando and serial_in = '0') else
+        recebendo when current_state = wait_start and done_serial_in = '1' and parity_calculado = parity_bit else
         calculando when current_state = recebendo and done_serial_in='1' else
         enviando when current_state = calculando and done_multisteps='1' else
         current_state;
+
+    estou_no_wait_start <= '1' when current_state = wait_start else '0';
+
+    LEDR <= 
+    "11111" & "11110" when current_state = wait_start else
+    "11111" & "11101" when current_state = recebendo else
+    "11111" & "11011" when current_state = guardando else
+    "11111" & "10111" when current_state = calculando else
+    "11111" & "01111" when current_state = enviando else
+    "1111111111";
         
+    -- type state_t is (wait_start, recebendo, guardando, calculando, enviando);
+
+
     ---------------------------------------- MARK: SINAIS DE CONTROLE -----------------------------------------
     start <= '0' when reset='1' else '1';
     tx_go <= '0' when reset='1' else '1';
@@ -214,14 +229,23 @@ begin
 
     data_in_register <= not reversed_parallel_data;
     enable_register <= '1' when done_serial_in = '1' and parity_calculado = parity_bit else '0';
+    -- reset_register <= '1' when current_state = wait_start else '0';
     reset_register <= reset;
+
+    -- data_serial_out <= haso(SERIAL_OUT_WIDTH*(((OUTPUT_WORDS-1)-send_counter)+1)-1 downto ((OUTPUT_WORDS-1)-send_counter)*SERIAL_OUT_WIDTH) 
+    --     when send_counter < OUTPUT_WORDS else haso(SERIAL_OUT_WIDTH-1 downto 0);
     
-    reset_serial_in <= reset;
-    reset_serial_out <= '0' when current_state = enviando else '1';
+    data_serial_out <= haso(SERIAL_OUT_WIDTH*(((OUTPUT_WORDS-1)-send_counter)+1)-1 downto ((OUTPUT_WORDS-1)-send_counter)*SERIAL_OUT_WIDTH)
+        when send_counter < OUTPUT_WORDS else haso(SERIAL_OUT_WIDTH-1 downto 0);
+    
+    reset_serial_in <= '1' when send_counter >= OUTPUT_WORDS else reset;
+    reset_serial_out <= '0' when current_state = enviando and send_counter < OUTPUT_WORDS else '1';
     reset_multisteps <= '1' when current_state = recebendo else '0';
+
+
         
     msgi <= data_out_register;
-    -- msgi <= parallel_data;
+    -- msgi <= x"000000f8000000000000000000000000000000000000000000000000000000006c204180676974616f204469746f7269626f72612d204c613333352050435333";
 
 end architecture;
 

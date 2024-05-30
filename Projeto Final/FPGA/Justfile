@@ -1,0 +1,21 @@
+set shell := ["zsh", "-c"]
+#set export
+
+SRC := "serial_in_gabriel,vga,utils"
+
+run entity_name='tb': analyze
+	nvc -e {{entity_name}} -r --wave=wave.fst
+
+analyze:
+	#!/usr/bin/env zsh
+	GLOB=`printf '{%s}/**/*.vhd' '{{SRC}}'`
+	nvc -a $(eval echo $GLOB)
+
+wave:
+	#!/usr/bin/env zsh
+	just run
+	[ -f wave.gtkw ] && EXTENSION="gtkw" || EXTENSION="fst"
+	pgrep gtkwave||gtkwave wave.$EXTENSION --autosavename --saveonexit&
+
+clean:
+	rm -f wave.{fst,vcd} work -r

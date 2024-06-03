@@ -17,3 +17,8 @@ Cargo.lock
 *.pdb
 work/
 .hdl_checker/cache.json
+
+
+# Quartus
+**/*_restored
+*.qarlog

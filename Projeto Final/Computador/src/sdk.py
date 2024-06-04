@@ -1,107 +1,43 @@
 from WF_SDK import device, supplies, static, error, warning     # import instruments
 from WF_SDK.protocol import uart                                # import protocol instrument
 
-from time import sleep          # needed for delays
 
-"""-----------------------------------------------------------------------"""
+class CameraSender:
+    def __init__(self, tx=0, rx=1, baud_rate=9600):
 
-try:
-    # connect to the device
-    device_data = device.open()
+        try:
+            # connect to the device
+            self.device_data = device.open()
 
-    """-----------------------------------"""
+            # initialize the uart interface on DIO0 and DIO1
+            uart.open(self.device_data, tx=tx, rx=rx, baud_rate=baud_rate)
 
-    # define MAXSonar reset line
-    reset = 2
+        except error as e:
+            print(e)
+            # close the connection
+            device.close(device.data)
 
-    # define timeout iteration count
-    timeout = 1000
+    def read(self, timeout=1000):
+        message = ""
+        try:
+            # read raw data
+            for _ in range(timeout):
+                message, error = uart.read(self.device_data)
+                if message != "":
+                    break
+        except warning as w:
+            print(w)
+        except error as e:
+            print(e)
 
-    # # start the power supplies
-    # supplies_data = supplies.data()
-    # supplies_data.master_state = True
-    # supplies_data.state = True
-    # supplies_data.voltage = 3.3
-    # supplies.switch(device_data, supplies_data)
-    # sleep(0.1)    # delay
+        return message
 
-    # # initialize the reset line
-    # static.set_mode(device_data, reset, output=True)
-    # static.set_state(device_data, reset, False)
+    def write(self, message: str):
+        uart.write(self.device_data, message)
 
-    # initialize the uart interface on DIO0 and DIO1
-    uart.open(device_data, tx=0, rx=1, baud_rate=9600)
+    def close(self):
+        # reset the interface
+        uart.close(self.device_data)
 
-    try:
-        # repeat
-        while True:
-            try:
-                # clear the screen and home cursor
-                uart.write(device_data, "\x1b[j")
-
-                # display a message
-                uart.write(device_data, "Dist: ")
-
-                # read raw data
-                # static.set_state(device_data, reset, True)    # enable the device
-                message = ""
-                for _ in range(timeout):
-                    # wait for data
-                    message, error = uart.read(device_data)
-                    if message != "":
-                        # exit when data is received
-                        break
-                # static.set_state(device_data, reset, False)    # disable the device
-
-                # convert raw data into distance
-                try:
-                    if message[0] == 234:
-                        message.pop(0)    # remove first byte
-                        value = 0
-                        for element in message:
-                            if element > 47 and element < 58:
-                                # concatenate valid bytes
-                                value = value * 10 + (element - 48)
-                        value *= 2.54   # convert to cm
-                except:
-                    # error in message
-                    value = -1
-
-                # display the distance
-                uart.write(device_data, str(round(value, 2)))
-
-                # display a message
-                uart.write(device_data, "cm")
-
-                # delay 1s
-                sleep(1)
-            
-            except warning as w:
-                print(w)
-
-    except KeyboardInterrupt:
-        # exit on Ctrl+C
-        pass
-
-    # reset the interface
-    uart.close(device_data)
-
-    # # reset the static I/O
-    # static.set_mode(device_data, reset, output=False)
-    # static.set_state(device_data, reset, True)
-    # static.close(device_data)
-
-    # # stop and reset the power supplies
-    # supplies_data.master_state = False
-    # supplies.switch(device_data, supplies_data)
-    # supplies.close(device_data)
-
-    """-----------------------------------"""
-
-    # close the connection
-    device.close(device_data)
-
-except error as e:
-    print(e)
-    # close the connection
-    device.close(device.data)
+        # close the connection
+        device.close(self.device_data)

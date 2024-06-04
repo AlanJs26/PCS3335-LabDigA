@@ -1,7 +1,10 @@
-library IEEE;
-use IEEE.numeric_bit.all;
+library ieee;
+use ieee.std_logic_1164.all;
+-- use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+use ieee.NUMERIC_STD.all;
 
-entity serial_in_entity is
+entity serial_in is
     generic (
         POLARITY : boolean := true;
         WIDTH : natural := 8;
@@ -9,39 +12,39 @@ entity serial_in_entity is
         CLOCK_MUL : positive := 4
     );
     port (
-        clock, reset, start, serial_data : in bit;
-        done, parity_bit, parity_calculado : out bit;
-        parallel_data : out bit_vector(width - 1 downto 0)
+        clock, reset, start, serial_data : in std_logic;
+        done, parity_bit, parity_calculado : out std_logic;
+        parallel_data : out std_logic_vector(width - 1 downto 0)
     );
 end entity;
 
-architecture libarch of serial_in_entity is
-    signal transitionflag : bit_vector(5 downto 0);
+architecture libarch of serial_in is
+    signal transitionflag : std_logic_vector(5 downto 0);
     -- 00001 rst, 00010 rest->strt, 00100 strt->poll, 01000 poll->poll, 10000 poll->rest
-    signal state : bit_vector(1 downto 0);
+    signal state : std_logic_vector(1 downto 0);
     -- 00 rest, 01 start, 10 poll
 
-    --signal started:bit := '0'; --set to 1 when strt is run, set to 0 when process ends
-    signal last4count : bit := '0';
+    --signal started:std_logic := '0'; --set to 1 when strt is run, set to 0 when process ends
+    signal last4count : std_logic := '0';
 
-    signal count1 : bit_vector(15 downto 0);
-    signal clk19200, triggerc1, rstcount1 : bit;
+    signal count1 : std_logic_vector(15 downto 0);
+    signal clk19200, triggerc1, rstcount1 : std_logic;
 
-    signal datareg : bit_vector(width downto 0);
+    signal datareg : std_logic_vector(width downto 0);
     --debug
-    signal polling : bit;
+    signal polling : std_logic;
     --end debug
-    signal paralaux : bit_vector(width downto 0);
-    signal doneaux : bit;
-    signal count2 : bit_vector(1 downto 0);
+    signal paralaux : std_logic_vector(width downto 0);
+    signal doneaux : std_logic;
+    signal count2 : std_logic_vector(1 downto 0);
     component counter4bits is
         generic (
             width : natural := 4
         );
         port (
-            clk : in bit;
-            rst : in bit;
-            count : out bit_vector(width - 1 downto 0)
+            clk : in std_logic;
+            rst : in std_logic;
+            count : out std_logic_vector(width - 1 downto 0)
         );
     end component;
 
@@ -52,8 +55,8 @@ architecture libarch of serial_in_entity is
             PARITY : NATURAL
         );
         port (
-            data : in bit_vector(WIDTH - 1 downto 0);
-            q : out bit
+            data : in std_logic_vector(WIDTH - 1 downto 0);
+            q : out std_logic
         );
     end component;
 begin

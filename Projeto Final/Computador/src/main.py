@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+from sdk import CameraSender
 
-resolution = (800, 600)
+resolution = (100, 100)
 
 print(f'Usando resolução: {resolution[0]}x{resolution[1]}')
 
@@ -11,14 +12,14 @@ cam = cv2.VideoCapture(0)
 cam.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
 cam.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
 
+
+camera_sender = CameraSender(tx=0, rx=1, baud_rate=115200*2)
+
 while True:
     ret, frame = cam.read()
     if not ret:
         print("failed to grab frame")
         break
-
-    # print(type(frame))
-    # print(frame.shape)
 
     blue_channel, green_channel, red_channel = cv2.split(frame)
 
@@ -36,11 +37,28 @@ while True:
 
     # cv2.imshow("frame", frame)
 
+    rows, columns, _ = merged_image.shape
+
+    byte_string = np.array(merged_image, dtype='b').tobytes().decode(errors='ignore')
+
+    camera_sender.write(byte_string)
+    # print(byte_string)
+
+    # for x in range(columns):
+    #     for y in range(rows):
+    #         byte_string = np.array(merged_image[y,x], dtype='b').tobytes().decode(errors='ignore')
+    #         # if x*y == 0:
+    #         #     print(byte_string, x, y)
+    #         camera_sender.write(byte_string)
+    #         print(x,y)
+            
+
     k = cv2.waitKey(1)
     if k%256 == 27:
-        # ESC pressed
         print("Escape hit, closing...")
         break
+
+camera_sender.close()
 
 cam.release()
 cv2.destroyAllWindows()

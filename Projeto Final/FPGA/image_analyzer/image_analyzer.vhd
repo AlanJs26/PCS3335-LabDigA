@@ -2,8 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-use ieee.NUMERIC_STD.all;
-use ieee.NUMERIC_STD_UNSIGNED.all;
+-- use ieee.NUMERIC_STD.all;
+-- use ieee.NUMERIC_STD_UNSIGNED.all;
 ---------------------------------------- MARK: Entity --------------------------------------------------  
 
 entity image_analyzer is
@@ -26,6 +26,20 @@ entity image_analyzer is
 end image_analyzer;
 ---------------------------------------- MARK: Architecture --------------------------------------------------  
 architecture arch of image_analyzer is
+
+    component clock_diviser is
+        generic (
+        CLOCK_MUL : integer
+        );
+        port (
+        i_clk : in std_logic;
+        i_rst : in std_logic;
+        o_clk_div : out std_logic
+        );
+    end component;
+
+    signal clock_div : std_logic;
+
     ---------------------------------------- MARK: Componente Serial In --------------------------------------------------  
     constant POLARITY : boolean := FALSE;
     constant PARITY : natural := 1;
@@ -50,7 +64,8 @@ architecture arch of image_analyzer is
 
     ---------------------------------------- MARK: Componente Images Register --------------------------------------------------  
     
-    constant ADDRESS_OFFSET_C : std_logic_vector(19 downto 0) := std_logic_vector(to_unsigned(WIDTH * HEIGHT + 10, 20));
+    -- constant ADDRESS_OFFSET_C : std_logic_vector(19 downto 0) := std_logic_vector(conv_unsigned(WIDTH * HEIGHT + 10, 20));
+    signal ADDRESS_OFFSET_C : std_logic_vector(19 downto 0);
     
     component images_register is
         generic (
@@ -70,6 +85,8 @@ architecture arch of image_analyzer is
     end component;
 
     signal x,y : integer;
+    signal x_ram,y_ram : integer;
+    signal x_vga,y_vga : integer;
     signal RW : std_logic;
     signal pixel : std_logic_vector(COLOR_DEPTH-1 downto 0);
 
@@ -116,7 +133,7 @@ architecture arch of image_analyzer is
         );
     end component;
 
-    signal reset_VGA, done_VGA : std_logic;
+    signal reset_VGA, done_VGA : std_logic;    
 
     ---------------------------------------- MARK: UNITED STATES OF SMASH! --------------------------------------------------  
 
@@ -133,10 +150,21 @@ architecture arch of image_analyzer is
         CLOCK_MUL => CLOCK_MUL
     )
     port map(
-        clock, reset_serial_in, start_serial_in, serial_data_in,
+        clock_div, reset_serial_in, start_serial_in, serial_data_in,
         done_serial_in, parity_bit, parity_calculado,
         parallel_data
     );
+
+    CLOCK_DIVISER_INSTANCE : clock_diviser
+    generic map(
+        CLOCK_MUL => (50000000/(115200*4))/2
+    )
+    port map(
+        i_clk => clock,
+        i_rst => '0',
+        o_clk_div => clock_div
+    );
+
 
     IMAGES_REGISTER_INSTANCE : images_register
     generic map(
@@ -146,8 +174,8 @@ architecture arch of image_analyzer is
     )
     port map(
         clock => clock,
-        x => x,
-        y => y,
+        x => x_ram,
+        y => y_ram,
         RW => RW,
         address_offset => ADDRESS_OFFSET_C,
         data => parallel_data,
@@ -181,12 +209,12 @@ architecture arch of image_analyzer is
         VGA_R => VGA_R,
         VGA_G => VGA_G,
         VGA_B => VGA_B,
-        x => x,
-        y => y,
+
+        x => x_vga,
+        y => y_vga,
         address_offset => ADDRESS_OFFSET_C, 
         pixel => pixel,
         done => done_VGA
-
     );
 
     ---------------------------------------- MARK: Process ---------------------------------------- 
@@ -211,7 +239,10 @@ architecture arch of image_analyzer is
 
     enable_counter_2D <= '1' when done_serial_in = '1' else '0';
     reset_counter_2D <= '1' when current_state = wait_start else '0';
-    RW <= '1';
+    RW <= '1' when done_serial_in = '1' else '0';
+
+    x_ram <= x when current_state /= enviando else x_vga;
+    y_ram <= y when current_state /= enviando else y_vga;
 
     reset_VGA <= '0' when current_state = enviando else '1';
 

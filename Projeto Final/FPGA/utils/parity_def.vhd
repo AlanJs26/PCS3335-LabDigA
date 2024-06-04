@@ -1,3 +1,8 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
 ----------------------------------------PARIDADE----------------------------------------
 
 entity parity_def is
@@ -7,14 +12,14 @@ entity parity_def is
         PARITY : NATURAL := 1
     );
     port (
-        data : in bit_vector(WIDTH - 1 downto 0);
-        q : out bit
+        data : in std_logic_vector(WIDTH - 1 downto 0);
+        q : out std_logic
     );
 end entity;
 
 architecture parity_def_arch of parity_def is
-    signal paridade : bit_vector(WIDTH-2 downto 0);
-    signal saida : bit;
+    signal paridade : std_logic_vector(WIDTH-2 downto 0);
+    signal saida : std_logic;
 begin
     
     paridade(0) <= data(0) xor data(1);

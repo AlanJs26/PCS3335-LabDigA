@@ -2,8 +2,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-use ieee.NUMERIC_STD.all;
-use ieee.NUMERIC_STD_UNSIGNED.all;
 
 
 entity images_register is
@@ -25,15 +23,16 @@ entity images_register is
 end images_register;
 architecture arch of images_register is
 
-    component ram1port is
-        port (
-            clock : in std_logic := '1';
-            address : in std_logic_vector (19 downto 0);
-            data : in std_logic_vector (COLOR_DEPTH-1 downto 0);
-            wren : in std_logic;
-            q : out std_logic_vector (COLOR_DEPTH-1 downto 0)
+    component ram1port IS
+        PORT
+        (
+            address		: IN STD_LOGIC_VECTOR (19 DOWNTO 0);
+            clock		: IN STD_LOGIC  := '1';
+            data		: IN STD_LOGIC_VECTOR (23 DOWNTO 0);
+            wren		: IN STD_LOGIC ;
+            q		: OUT STD_LOGIC_VECTOR (23 DOWNTO 0)
         );
-    end component;
+    END component;
 
     signal xy_address : std_logic_vector(19 downto 0);
 
@@ -47,7 +46,7 @@ begin
         q => pixel
     );
     
-    xy_address <= std_logic_vector(to_unsigned((x + y * WIDTH) * 3, 20));
+    xy_address <= std_logic_vector(conv_unsigned((x + y * WIDTH) * 3, 20));
 
     
 end arch;

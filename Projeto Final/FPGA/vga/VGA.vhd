@@ -9,7 +9,9 @@ entity VGA is
     generic (
         WIDTH : integer := 800;
         HEIGHT : integer := 600;
-        COLOR_DEPTH : integer := 24
+        COLOR_DEPTH : integer := 24;
+        RAM_WORD : integer;
+        RAM_ADDRESS : integer
     );
     port (
         clock, reset : in std_logic;
@@ -22,7 +24,7 @@ entity VGA is
         done : out std_logic;
         
         x, y : out integer;
-        address_offset : out std_logic_vector(19 downto 0);
+        address_offset : out std_logic_vector(RAM_ADDRESS-1 downto 0);
 
         pixel : in std_logic_vector(COLOR_DEPTH - 1 downto 0)
     );
@@ -50,6 +52,8 @@ architecture arch of VGA is
     signal H_SYNC_SIGNAL, V_SYNC_SIGNAL : std_logic;
     signal R_SIGNAL, G_SIGNAL, B_SIGNAL : std_logic;
 
+    signal done_s : std_logic;
+
 begin
 
     --M�dulo de sincronismo
@@ -63,9 +67,10 @@ begin
         F_DISP_ENABLE => DISP_ENABLE);
 
     --Associação de pinos para conexão VGA 
-    VGA_R <= pixel(19 downto 16);
-    VGA_G <= pixel(11 downto 8);
-    VGA_B <= pixel(3 downto 0);
+    VGA_R <= pixel(11 downto 8) when done_s = '1' else (others=>'0');
+    VGA_G <= pixel(7 downto 4) when done_s = '1' else (others=>'0');
+    VGA_B <= pixel(3 downto 0) when done_s = '1' else (others=>'0');
+
 
     VGA_HS <= H_SYNC_SIGNAL;
     VGA_VS <= V_SYNC_SIGNAL;
@@ -75,7 +80,9 @@ begin
     x <= conv_integer(unsigned(CURRENT_COLUMN));
     y <= conv_integer(unsigned(CURRENT_ROW));
 
-    done <= '1' when CURRENT_COLUMN = std_logic_vector(conv_unsigned(WIDTH, 11)) and CURRENT_ROW = std_logic_vector(conv_unsigned(HEIGHT, 10)) else
+    done_s <= '1' when CURRENT_COLUMN = std_logic_vector(conv_unsigned(WIDTH, 11)) and CURRENT_ROW = std_logic_vector(conv_unsigned(HEIGHT, 10)) else
             '0';
+
+    done <= done_s;
 
 end arch;

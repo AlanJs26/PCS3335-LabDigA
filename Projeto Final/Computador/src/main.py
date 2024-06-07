@@ -2,18 +2,22 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 from sdk import CameraSender
+from time import time
 
-resolution = (100, 100)
+resolution = (200, 200)
 
 print(f'Usando resolução: {resolution[0]}x{resolution[1]}')
 
 cam = cv2.VideoCapture(0)
 
-cam.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
-cam.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
+# cam.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
+# cam.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
 
 
 camera_sender = CameraSender(tx=0, rx=1, baud_rate=115200*2)
+
+def to_bytearray(x):
+   return np.array(x.astype('half')/16, dtype='b')
 
 while True:
     ret, frame = cam.read()
@@ -21,27 +25,39 @@ while True:
         print("failed to grab frame")
         break
 
-    blue_channel, green_channel, red_channel = cv2.split(frame)
+    frame = cv2.resize(frame, resolution) 
 
-    mask = 0b11110000
+    print(frame.shape)
+
+    # blue_channel, green_channel, red_channel = cv2.split(frame)
+
+    # mask = 0b11110000
     # frame_4bits = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # frame_4bits = cv2.bitwise_and(frame_4bits, mask)
     # frame = cv2.cvtColor(frame_4bits, cv2.COLOR_GRAY2BGR)
 
-    blue = cv2.bitwise_and(blue_channel, mask)
-    green = cv2.bitwise_and(green_channel, mask)
-    red = cv2.bitwise_and(red_channel, mask)
+    # blue = cv2.bitwise_and(blue_channel, mask)
+    # green = cv2.bitwise_and(green_channel, mask)
+    # red = cv2.bitwise_and(red_channel, mask)
 
-    merged_image = cv2.merge([blue, green, red])
-    cv2.imshow("merged_image", merged_image)
+    # merged_image = cv2.merge([blue, green, red])
 
     # cv2.imshow("frame", frame)
 
-    rows, columns, _ = merged_image.shape
+    # rows, columns, _ = merged_image.shape
 
-    byte_string = np.array(merged_image, dtype='b').tobytes().decode(errors='ignore')
+    # merged_image = to_bytearray(frame)
+    cv2.imshow("frame", frame)
+
+    start_time = time()
+    byte_string = to_bytearray(frame).reshape(np.prod(frame.shape)).tobytes().decode('utf-8')
 
     camera_sender.write(byte_string)
+    end_time = time()
+
+    print(f'tempo de envio: {end_time-start_time} segundos')
+
+
     # print(byte_string)
 
     # for x in range(columns):
@@ -51,7 +67,8 @@ while True:
     #         #     print(byte_string, x, y)
     #         camera_sender.write(byte_string)
     #         print(x,y)
-            
+    
+
 
     k = cv2.waitKey(1)
     if k%256 == 27:

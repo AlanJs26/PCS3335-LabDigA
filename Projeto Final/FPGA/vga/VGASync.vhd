@@ -61,7 +61,7 @@ BEGIN
     PROCESS(F_CLOCK, RESET)
     BEGIN
     
-        IF (RESET = '0') THEN
+        IF (RESET = '1') THEN
  
             HCount_Prior <= (others => '0');
             VCount_Prior <= (others => '0');

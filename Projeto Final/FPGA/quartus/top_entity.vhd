@@ -6,6 +6,9 @@ use ieee.std_logic_unsigned.all;
 entity top_entity is
   port (
 	 CLOCK_50: in std_logic;
+     LEDR : out std_logic_vector(9 downto 0);
+
+     GPIO_1 : in std_logic_vector(35 downto 0);
 
      VGA_HS : out std_logic;
      VGA_VS : out std_logic;
@@ -25,8 +28,11 @@ architecture arch of top_entity is
         );
         port (
             clock, reset : in std_logic;
-            done : std_logic;
-            filter : std_logic_vector(1 downto 0);
+            filter : in std_logic_vector(1 downto 0);
+
+            GPIO_1 : in std_logic_vector(35 downto 0);
+
+            LEDR : out std_logic_vector(9 downto 0);
     
             VGA_HS : out std_logic;
             VGA_VS : out std_logic;
@@ -36,22 +42,23 @@ architecture arch of top_entity is
         );
     end component;
 
-    signal done : std_logic;
 	 
 begin
 
 
     IMAGE_ANALYZER_INSTANCE : image_analyzer
     generic map(
-        WIDTH => 100,
-        HEIGHT => 100,
-        COLOR_DEPTH => 24
+        WIDTH => 200,
+        HEIGHT => 200,
+        COLOR_DEPTH => 12
     )
     port map(
         clock => CLOCK_50,
         reset => '0',
-        done => done,
         filter => "00",
+
+        GPIO_1 => GPIO_1,
+        LEDR => LEDR,
 
         VGA_HS => VGA_HS,
         VGA_VS => VGA_VS,

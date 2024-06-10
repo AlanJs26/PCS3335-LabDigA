@@ -150,7 +150,10 @@ def write(device_data, data):
         data = "".join(chr(element) for element in data)
 
     # encode the string into a string buffer
-    data = ctypes.create_string_buffer(data.encode("UTF-8"))
+    if type(data) == bytes:
+        data = ctypes.create_string_buffer(data)
+    else:
+        data = ctypes.create_string_buffer(data.encode("UTF-8"))
 
     # send text, trim zero ending
     if dwf.FDwfDigitalUartTx(device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1)) == 0:

@@ -50,8 +50,12 @@ while True:
     cv2.imshow("frame", frame)
 
     start_time = time()
-    byte_string = to_bytearray(frame).reshape(np.prod(frame.shape)).tobytes().decode('utf-8')
 
+    # Start Transmission
+    camera_sender.write(b'\xaa')
+
+    # Send Frame
+    byte_string = to_bytearray(frame).reshape(np.prod(frame.shape)).tobytes()
     camera_sender.write(byte_string)
     end_time = time()
 

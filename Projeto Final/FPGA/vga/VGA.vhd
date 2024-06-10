@@ -52,7 +52,7 @@ architecture arch of VGA is
     signal H_SYNC_SIGNAL, V_SYNC_SIGNAL : std_logic;
     signal R_SIGNAL, G_SIGNAL, B_SIGNAL : std_logic;
 
-    signal done_s : std_logic;
+    signal done_s,x_valid,y_valid : std_logic;
 
 begin
 
@@ -67,9 +67,9 @@ begin
         F_DISP_ENABLE => DISP_ENABLE);
 
     --Associação de pinos para conexão VGA 
-    VGA_R <= pixel(11 downto 8) when done_s = '1' else (others=>'0');
-    VGA_G <= pixel(7 downto 4) when done_s = '1' else (others=>'0');
-    VGA_B <= pixel(3 downto 0) when done_s = '1' else (others=>'0');
+    VGA_R <= pixel(11 downto 8) when x_valid='1' and y_valid='1' else (others=>'0');
+    VGA_G <= pixel(7 downto 4) when x_valid='1' and y_valid='1' else (others=>'0');
+    VGA_B <= pixel(3 downto 0) when x_valid='1' and y_valid='1' else (others=>'0');
 
 
     VGA_HS <= H_SYNC_SIGNAL;
@@ -77,11 +77,16 @@ begin
 
 
     address_offset <= (others=>'0');
-    x <= conv_integer(unsigned(CURRENT_COLUMN));
-    y <= conv_integer(unsigned(CURRENT_ROW));
+    x <= conv_integer(unsigned(CURRENT_COLUMN)) when x_valid='1' else 0;
+    y <= conv_integer(unsigned(CURRENT_ROW)) when y_valid='1' else 0;
 
-    done_s <= '1' when CURRENT_COLUMN = std_logic_vector(conv_unsigned(WIDTH, 11)) and CURRENT_ROW = std_logic_vector(conv_unsigned(HEIGHT, 10)) else
+    x_valid <= '1' when CURRENT_COLUMN < std_logic_vector(conv_unsigned(WIDTH, CURRENT_COLUMN'length)) else '0';
+    y_valid <= '1' when CURRENT_ROW < std_logic_vector(conv_unsigned(HEIGHT, CURRENT_ROW'length)) else '0';
+
+    done_s <= '1' when x_valid='0' and y_valid='0' else
             '0';
+    -- done_s <= '1' when conv_integer(unsigned(CURRENT_COLUMN)) >= 800 and   else
+    --         '0';
 
     done <= done_s;
 

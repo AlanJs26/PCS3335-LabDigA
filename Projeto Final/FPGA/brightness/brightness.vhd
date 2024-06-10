@@ -1,15 +1,13 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;
-use ieee.NUMERIC_STD.all;
-use ieee.NUMERIC_STD_UNSIGNED.all;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity brightness is
     generic (
         WIDTH: integer := 800;
         HEIGHT: integer := 600;
-        COLOR_DEPTH: integer := 24
+        COLOR_DEPTH := 24 integer
     );
     port (
         clock, reset: in bit;
@@ -24,7 +22,7 @@ architecture arch_brightness of brightness is
         generic (
             WIDTH : integer := 800;
             HEIGHT : integer := 600;
-            COLOR_DEPTH : integer := 24
+            COLOR_DEPTH : integer := 12
         );
         port (
             clock : in std_logic;
@@ -46,7 +44,7 @@ architecture arch_brightness of brightness is
     signal r_pixel, w_pixel : std_logic_vector(COLOR_DEPTH-1 downto 0);
 
     -- Sinais de dados BGR
-    signal B, G, R : std_logic_vector(7 downto 0);
+    signal B, G, R : std_logic_vector(3 downto 0);
 
     --Sinal de controle
     signal control : integer;
@@ -60,14 +58,13 @@ architecture arch_brightness of brightness is
         R_IMAGE: images_register generic map (WIDTH, HEIGHT, COLOR_DEPTH) port map (clock, x, y, '0', r_address_offset, r_data, r_pixel);
         W_IMAGE: images_register generic map (WIDTH, HEIGHT, COLOR_DEPTH) port map (clock, x, y, RW, w_address_offset, w_data, w_pixel);
 
-        control 
-
         process (reset, clock) is
         begin
 
             if (reset = '1') then
                 RW <= '0';
                 r_address_offset <= 0;
+                w_address_offset <= 0;
 
                 done <= '0';
                 filter_state <= idle;
@@ -79,6 +76,9 @@ architecture arch_brightness of brightness is
                         if (start = '1') then
                             RW <= '1';
                             w_address_offset <= (WIDTH * HEIGHT) + 10;
+
+                            x <= 0;
+                            y <= 0;
 
                             filter_state <= read_write;
                         else 
@@ -94,32 +94,63 @@ architecture arch_brightness of brightness is
                         end if;
 
                         when read_write => 
+                            
+                            if (x < WIDTH and y < HEIGHT - 1) then
+                                
+                                filter_state <= read_write
 
-                            for i in 0 to (HEIGHT - 1) loop
-                                for j in 0 to (WIDTH - 1) loop
-                                x <= i;
-                                y <= j;
-
-                                if (HL = '1' and r_pixel(23 downto 16) <= 191 and r_pixel(15 downto 8) <= 191 and r_pixel(7 downto 0) <= 191) then
-                                    B <= r_pixel(23 downto 16) + 64;
-                                    G <= r_pixel(15 downto 8) + 64;
-                                    R <= r_pixel(7 downto 0) + 64;
-                                elsif(HL = '0' and r_pixel(23 downto 16) >= 64 and r_pixel(15 downto 8) >= 64 and r_pixel(7 downto 0) >= 64) then
-                                    B <= r_pixel(23 downto 16) - 64;
-                                    G <= r_pixel(15 downto 8) - 64;
-                                    R <= r_pixel(7 downto 0) - 64;
+                                if(x = WIDTH) then
+                                    x <= 0;
+                                    y <= y + 1;
                                 else
-                                    B <= r_pixel(23 downto 16);
-                                    G <= r_pixel(15 downto 8);
-                                    R <= r_pixel(7 downto 0);
+                                    x <= x + 1;
                                 end if;
-                                w_data <= B & G & R;
-                            end loop;
 
-                            if (x = HEIGHT - 1 and y = WIDTH - 1) then
-                                RW <= '0';
-                                filter_state <= ended;
-                            end if;
+                                if (HL = '1' and r_pixel(11 downto 8) <= 11) then
+                                    B <= conv_std_logic_vector((conv_integer(unsigned(r_pixel(11 downto 8))) + 4), B'length);
+                                elsif (HL = '1' and r_pixel(11 downto 8) > 11) then
+                                    B <= 15;
+                                end if;
+
+                                if (HL = '1' and r_pixel(7 downto 4) <= 11) then
+                                    G <= conv_std_logic_vector((conv_integer(unsigned(r_pixel(7 downto 4))) + 4), G'length);
+                                elsif (HL = '1' and r_pixel(7 downto 4) > 11) then
+                                    G <= 15;
+                                end if;
+
+                                if (HL = '1' and r_pixel(3 downto 0) <= 11) then
+                                    R <= conv_std_logic_vector((conv_integer(unsigned(r_pixel(3 downto 0))) + 4), R'length);
+                                elsif (HL = '1' and r_pixel(3 downto 0) > 11) then
+                                    R <= 15;
+                                end if;
+
+                                if (HL = '0' and r_pixel(11 downto 8) >= 4) then
+                                    B <= conv_std_logic_vector((conv_integer(unsigned(r_pixel(11 downto 8))) - 4), B'length);
+                                elsif (HL = '0' and r_pixel(11 downto 8) < 4) then
+                                    B <= 0;
+                                end if;
+
+                                if (HL = '0' and r_pixel(7 downto 4) >= 4) then
+                                    G <= conv_std_logic_vector((conv_integer(unsigned(r_pixel(7 downto 4))) - 4), G'length);
+                                elsif (HL = '0' and r_pixel(7 downto 4) < 4) then
+                                    G <= 0;
+                                end if;
+
+                                if (HL = '0' and r_pixel(3 downto 0) >= 4) then
+                                    R <= conv_std_logic_vector((conv_integer(unsigned(r_pixel(3 downto 0))) - 4), R'length);
+                                elsif (HL = '0' and r_pixel(3 downto 0) < 4) then
+                                    R <= 0;
+                                end if;
+
+                                w_data <= B & G & R;
+                        
+                        else
+                            
+                            filter_state <= ended;
+
+                        end if;
+
+                            
 
                         when ended =>
                                 start <= '0';

@@ -42,6 +42,6 @@ begin
         end if;
     end process;
 
-    x <= x_reg;
-    y <= y_reg;
+    x <= x_reg when y_reg<HEIGHT else WIDTH-1;
+    y <= y_reg when y_reg<HEIGHT else HEIGHT-1;
 end architecture arch;

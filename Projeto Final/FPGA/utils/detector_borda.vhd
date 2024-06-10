@@ -7,10 +7,10 @@ entity detector_borda is
 		subida : boolean := true
 	);
 	port (
-		clk	: in std_logic;
-		rst	: in std_logic;
-		borda	: in std_logic;
-		update: out std_logic
+		clock	: in  std_logic;
+		reset	: in  std_logic;
+		borda	: in  std_logic;
+		update  : out std_logic
 	);
 end detector_borda;
 
@@ -19,11 +19,11 @@ architecture rlt of detector_borda is
     signal EA : estados;
 	signal amostragem: std_logic;
 begin
-	process(rst, clk)
+	process(reset, clock)
 	begin
-	  if rst = '0' then
+	  if reset = '1' then
 			EA <= Waiting_Rise;
-	  elsif rising_edge(clk) then
+	  elsif rising_edge(clock) then
 			if (EA = Waiting_Fall and amostragem = '0') then
 				EA <= Waiting_Rise;
 			elsif (EA = Waiting_Rise and amostragem = '1') then

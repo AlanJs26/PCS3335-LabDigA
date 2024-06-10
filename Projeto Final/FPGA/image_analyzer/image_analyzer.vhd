@@ -18,6 +18,13 @@ entity image_analyzer is
         LEDR : out std_logic_vector(9 downto 0);
 
         GPIO_1 : in std_logic_vector(35 downto 0);
+        KEY : in std_logic_vector(3 downto 0);
+        HEX0: out std_logic_vector(6 downto 0);
+        HEX1: out std_logic_vector(6 downto 0);
+        HEX2: out std_logic_vector(6 downto 0);
+        HEX3: out std_logic_vector(6 downto 0);
+        HEX4: out std_logic_vector(6 downto 0);
+        HEX5: out std_logic_vector(6 downto 0);
 
         VGA_HS : out std_logic;
         VGA_VS : out std_logic;
@@ -29,6 +36,19 @@ end image_analyzer;
 ---------------------------------------- MARK: Architecture --------------------------------------------------  
 architecture arch of image_analyzer is
 
+    signal enable_all : std_logic;
+
+    ---------------------------------------- MARK: Componente Hex2Seg --------------------------------------------------  
+
+    component hex2seg is
+        port ( hex : in  std_logic_vector(3 downto 0); -- Entrada binaria
+               seg : out std_logic_vector(6 downto 0)  -- Saída hexadecimal
+               -- A saída corresponde aos segmentos gfedcba nesta ordem. Cobre 
+               -- todos valores possíveis de entrada.
+            );
+    end component;
+
+    ---------------------------------------- MARK: Componente Clock Diviser --------------------------------------------------  
     component clock_diviser is
         generic (
         CLOCK_MUL : integer
@@ -91,7 +111,7 @@ architecture arch of image_analyzer is
         );
     end component;
 
-    signal x,y : integer;
+    signal x_counter,y_counter : integer;
     signal x_ram,y_ram : integer;
     signal x_vga,y_vga : integer;
     signal RW : std_logic;
@@ -112,8 +132,24 @@ architecture arch of image_analyzer is
         );
     end component;
 
-    signal reset_counter_2D : std_logic;
+    signal reset_counter_2D, clock_counter_2D : std_logic;
     signal enable_counter_2D : std_logic;
+
+    ---------------------------------------- MARK: Componente counter --------------------------------------------------  
+
+    component counter is
+        generic(
+            MAX: integer
+        );
+        port (
+            clock, reset : in std_logic;
+            enable : in std_logic;
+            q : out integer
+        );
+    end component;
+
+    signal word_counter : integer := 0;
+    signal reset_counter, enable_counter : std_logic;
 
     ---------------------------------------- MARK: Componente VGA --------------------------------------------------  
 
@@ -161,8 +197,6 @@ architecture arch of image_analyzer is
     signal enable_shift_register, reset_shift_register : std_logic;
     signal data_shift_register : std_logic_vector(RAM_WORD-1 downto 0);
 
-    signal word_counter : integer := 0;
-
     ---------------------------------------- MARK: Detector de Borda --------------------------------------------------  
 
     component detector_borda is
@@ -170,20 +204,32 @@ architecture arch of image_analyzer is
             subida : boolean := true
         );
         port (
-            clk	: in std_logic;
-            rst	: in std_logic;
+            clock	: in std_logic;
+            reset	: in std_logic;
             borda	: in std_logic;
             update: out std_logic
         );
     end component;
 
-    ---------------------------------------- MARK: UNITED STATES OF SMASH! --------------------------------------------------  
+    signal done_serial_in_borda, reset_detector_borda : std_logic;
+
+    ---------------------------------------- MARK: Maquina de Estados --------------------------------------------------  
 
     type state_t is (wait_start, recebendo, processando, enviando);
     signal next_state, current_state : state_t;
 
     begin
     ---------------------------------------- MARK: Port Maps e Signals ---------------------------------------- 
+    CLOCK_DIVISER_INSTANCE : clock_diviser
+    generic map(
+        CLOCK_MUL => (50000000/(115200*2*4))/2
+    )
+    port map(
+        i_clk => clock,
+        i_rst => '0',
+        o_clk_div => clock_div
+    );
+    
     SERIAL_IN_INSTANCE : serial_in
     generic map(
         POLARITY => POLARITY,
@@ -196,17 +242,6 @@ architecture arch of image_analyzer is
         done_serial_in, parity_bit, parity_calculado,
         parallel_data
     );
-
-    CLOCK_DIVISER_INSTANCE : clock_diviser
-    generic map(
-        CLOCK_MUL => (50000000/(115200*2*4))/2
-    )
-    port map(
-        i_clk => clock,
-        i_rst => '0',
-        o_clk_div => clock_div
-    );
-
 
     IMAGES_REGISTER_INSTANCE : images_register
     generic map(
@@ -232,11 +267,22 @@ architecture arch of image_analyzer is
         HEIGHT => HEIGHT
     )
     port map(
-        clock => clock,
+        clock => clock_counter_2D,
         reset => reset_counter_2D,
         enable => enable_counter_2D, 
-        x => x,
-        y => y
+        x => x_counter,
+        y => y_counter
+    );
+
+    COUNTER_INSTANCE : counter
+    generic map(
+        MAX => 3
+    )
+    port map(
+        clock => done_serial_in_borda,
+        enable => enable_counter,
+        reset => reset_counter,
+        q => word_counter
     );
 
     VGA_INSTANCE : VGA
@@ -276,6 +322,17 @@ architecture arch of image_analyzer is
         data_out => data_shift_register
     );
 
+    DETECTOR_BORDA_INSTANCE : detector_borda
+    generic map(
+        subida => false
+    )
+    port map(
+        clock => clock,
+        reset => reset_detector_borda,
+        borda => done_serial_in,
+        update => done_serial_in_borda
+    );
+
     ---------------------------------------- MARK: Process ---------------------------------------- 
 
     STATES_PROCESS : process (clock, reset)
@@ -283,12 +340,6 @@ architecture arch of image_analyzer is
         if reset = '1' then
             current_state <= wait_start;
         elsif rising_edge(clock) then
-
-            if word_counter >= 2 or current_state = wait_start then
-                word_counter <= 0;
-            else
-                word_counter <= word_counter + 1;
-            end if;
             current_state <= next_state;
         end if;
     end process;
@@ -296,14 +347,15 @@ architecture arch of image_analyzer is
     -- Logica de proximo estado
     next_state <=
         wait_start when current_state = enviando and done_vga = '1' else
-        recebendo when current_state = wait_start and done_serial_in = '1' else
+        recebendo when current_state = wait_start and done_serial_in_borda = '1' and (enable_all='1' or parallel_data="10101010") else
         -- recebendo when current_state = wait_start and done_serial_in = '1' and parity_calculado = parity_bit else
-        processando when current_state = recebendo and (x = WIDTH-1 and y = HEIGHT-1) else
+        processando when current_state = recebendo and (x_counter = WIDTH-1 and y_counter = HEIGHT-1) else
         enviando when current_state = processando else
         current_state;
 
 
-    LEDR(9 downto 5) <= (others=>'0');
+    LEDR(9 downto 6) <= (others=>'0');
+    LEDR(5) <= reset;
     LEDR(4) <= done_serial_in;
     LEDR(3 downto 0) <= "0001" when current_state = wait_start else
                         "0010" when current_state = recebendo else
@@ -314,19 +366,64 @@ architecture arch of image_analyzer is
     
     reset_serial_in <= '0';
     start_serial_in <= '1';
-    enable_shift_register <= '1' when done_serial_in = '1' else '0';
+    enable_shift_register <= '1' when done_serial_in_borda = '1' else '0';
     reset_shift_register <= '1' when current_state = wait_start else '0';
 
-    enable_counter_2D <= '1' when done_serial_in = '1' else '0';
-    reset_counter_2D <= '1' when current_state = wait_start else '0';
     RW <= '1' when done_serial_in = '1' and word_counter = 2 and (current_state = processando or current_state = recebendo) else '0';
 
-    x_ram <= x when current_state /= enviando and current_state /= wait_start else x_vga;
-    y_ram <= y when current_state /= enviando and current_state /= wait_start else y_vga;
+    x_ram <= x_counter when current_state /= enviando and current_state /= wait_start else x_vga;
+    y_ram <= y_counter when current_state /= enviando and current_state /= wait_start else y_vga;
 
-    reset_VGA <= '0' when current_state = enviando or current_state = wait_start else '1';
+    -- reset_VGA <= '0' when current_state = enviando or current_state = wait_start else '1';
+    reset_VGA <= '0';
+
+    reset_detector_borda <= '1' when current_state=enviando else '0';
+
+    clock_counter_2D <= '1' when done_serial_in_borda='1' and word_counter = 2 else '0';
+    enable_counter_2D <= '1' when current_state = recebendo;
+    reset_counter_2D <= '1' when current_state = wait_start else '0';
+
+    enable_counter <= '1' when current_state = recebendo;
+    reset_counter <= '1' when current_state = wait_start else '0';
 
     serial_data_in <= GPIO_1(0);
+    enable_all <= not KEY(2);
+
+
+    -- DISPLAY X
+    HEX0_INSTANCE: HEX2Seg
+	Port map (
+		hex => std_logic_vector(conv_unsigned(y_counter mod 10, 4)),
+		seg => HEX0
+	);
+    HEX1_INSTANCE: HEX2Seg
+	Port map (
+		hex => std_logic_vector(conv_unsigned(y_counter/10 mod 10, 4)),
+		seg => HEX1
+	);
+    HEX2_INSTANCE: HEX2Seg
+	Port map (
+		hex => std_logic_vector(conv_unsigned(y_counter/100 mod 10, 4)),
+		seg => HEX2
+	);
+
+    -- DISPLAY Y
+    HEX3_INSTANCE: HEX2Seg
+	Port map (
+		hex => std_logic_vector(conv_unsigned(x_counter mod 10, 4)),
+		seg => HEX3
+	);
+    HEX4_INSTANCE: HEX2Seg
+	Port map (
+		hex => std_logic_vector(conv_unsigned(x_counter/10 mod 10, 4)),
+		seg => HEX4
+	);
+    HEX5_INSTANCE: HEX2Seg
+	Port map (
+		hex => std_logic_vector(conv_unsigned(x_counter/100 mod 10, 4)),
+		seg => HEX5
+	);
+    
 
     -- Completar a maquina de estados para que fique alternando entre os estados processando e enviando atÃƒÂƒÃ‚Â© que um novo sinal serial seja recebido
     -- Adicionar os filtros

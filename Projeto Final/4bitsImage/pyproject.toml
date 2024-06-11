@@ -1,0 +1,28 @@
+[project]
+name = "4bitsImage"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "AlanJS26", email = "alanjoses.29@gmail.com"},
+]
+dependencies = [
+    "Pillow>=10.3.0",
+    "numpy>=1.24.4",
+    "matplotlib>=3.7.5",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
+
+
+[tool.pdm.scripts]
+start = "python src/main.py"
+
+[tool.pyright]
+exclude = [".venv"]
+venvPath = "."
+venv = ".venv"
